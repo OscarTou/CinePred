@@ -3,6 +3,7 @@ import seaborn as sns
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
 from utils import *
+import numpy as np
 from currency_converter import CurrencyConverter
 
 
@@ -151,6 +152,16 @@ class Data:
         self.dataframe = self.dataframe.reset_index()
         self.dataframe = self.dataframe.drop(columns='index')
 
+        return self
+
+    def add_sin_cos_features(self, column_name):
+        self.dataframe[column_name] = pd.DatetimeIndex(self.dataframe['date_published']).month
+        months = 12
+        self.dataframe["sin_MoPub"] = np.sin(2 * np.pi * self.dataframe.Month_published / months)
+        self.dataframe["cos_MoPub"] = np.cos(2 * np.pi * self.dataframe.Month_published /months)
+
+        return self
+
 
 def example():
     '''
@@ -187,6 +198,9 @@ def example():
 
     print('----- convert to date -----')
     data.convert_to_date('date_published')
+
+    print('----- seasonality Sin/Cos -----')
+    data.add_sin_cos_features('Month_published')
 
     print('----- reset index -----')
     data.reset_index()
