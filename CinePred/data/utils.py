@@ -38,6 +38,7 @@ def one_hot_encode_multiple (data,column_name, remove_column = True):
     data.drop(column_name, axis = 1, inplace = True)
     return data
 
+
 def reduce_column_type(data, column_name, nb_max=5):
     # separate all actors into lists
     actor_list = data[column_name].str.split(', ').tolist()
