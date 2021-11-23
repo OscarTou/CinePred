@@ -102,17 +102,18 @@ class Data:
 
         return self
 
-    def one_hot_encode(self,column_name):
+    def one_hot_encode(self,column_names):
         '''
-        for cell with multiple categories, one hot encode this column, for each categories
+        for cell with multiple categories, one hot encode for each column, each categories
 
         Parameters
         ----------
-        columns_name : str
-            name of the column to encode
+        columns_name : array str
+            name list of the columns to encode
         '''
-        self.dataframe = one_hot_encode_multiple(
-            self.dataframe, column_name)
+        for column_name in column_names :
+            self.dataframe = one_hot_encode_multiple(
+                self.dataframe, column_name)
         return self
 
     def convert_to_int(self,column_name):
@@ -177,9 +178,9 @@ def example():
     print('----- filter categories -----')
     data.filter_categories("actors", nb=2)
     print('----- one hot encode -----')
-    data.one_hot_encode(column_name='actors')
-    #data.one_hot_encode(column_name='genre')
-    #data.one_hot_encode(column_name='director')
+    data.one_hot_encode(column_names=['director','genre'])
+    #data.one_hot_encode(column_names='genre')
+    #data.one_hot_encode(column_names='director')
 
     print('----- convert to int -----')
     data.convert_to_int('year')
