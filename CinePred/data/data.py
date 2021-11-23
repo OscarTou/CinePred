@@ -91,6 +91,17 @@ class Data:
 
         return self
 
+    def filter_categories(self, column_name, nb=5):
+        '''
+        filter only nb(5) categories
+        '''
+        # separate all actors into lists
+        category_list = self.dataframe[column_name].str.split(', ').tolist()
+        #return top 5 actors
+        self.dataframe[column_name]= [', '.join(category[:nb]) for category in category_list]
+
+        return self
+
     def one_hot_encode(self,column_name):
         '''
         for cell with multiple categories, one hot encode this column, for each categories
@@ -163,9 +174,10 @@ def example():
 
     print('----- convert budget -----')
     data.convert_budget_column(column_name='budget',min_rows=45, out_currency='USD')
-
+    print('----- filter categories -----')
+    data.filter_categories("actors", nb=2)
     print('----- one hot encode -----')
-    #data.one_hot_encode(column_name='country')
+    data.one_hot_encode(column_name='actors')
     #data.one_hot_encode(column_name='genre')
     #data.one_hot_encode(column_name='director')
 
