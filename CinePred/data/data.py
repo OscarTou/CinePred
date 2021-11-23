@@ -86,7 +86,7 @@ class Data:
 
         c = CurrencyConverter()
         self.dataframe[column_name] = self.dataframe[[column_name,'currency']]\
-            .apply(lambda x: convert(x[column_name], x['currency'], 'USD',converter = c), axis=1)
+            .apply(lambda x: convert(x[column_name], x['currency'], 'USD', converter = c), axis=1)
         self.dataframe = self.dataframe.drop(columns='currency')
 
         return self
