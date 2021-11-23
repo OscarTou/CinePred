@@ -53,7 +53,7 @@ class Data:
         self.dataframe = self.dataframe.dropna()
         return self
 
-    def convert_income(self, column_name):
+    def convert_income(self, column_name='worlwide_gross_income'):
         '''
         convert income colomn in value $1000 -> 1000
 

@@ -1,7 +1,7 @@
 from currency_converter import CurrencyConverter
 
 
-def convert (value,in_currency, out_currency, converter=None):
+def convert (value, in_currency, out_currency, converter=None):
     if converter is None :
         converter = CurrencyConverter()
     if in_currency == '$':
