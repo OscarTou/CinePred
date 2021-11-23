@@ -6,5 +6,6 @@ raw_data/
 *.csv
 **/__pycache__/
 .env
+notebooks/
 raw_data/
-notebooks/exploration.ipynb
+
