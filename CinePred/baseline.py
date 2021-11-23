@@ -2,7 +2,7 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import r2_score
 
 
-def baseline(model, X, y):
+def get_baseline_scores(model, X, y):
     """
         Baseline model
 
@@ -24,5 +24,5 @@ def baseline(model, X, y):
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
         r2.append(r2_score(y_test, y_pred))
-        
+    print("R2 scores: ", r2)
     return r2
