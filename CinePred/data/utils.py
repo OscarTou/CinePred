@@ -1,8 +1,9 @@
 from currency_converter import CurrencyConverter
 
 
-def convert (value,in_currency, out_currency):
-    c = CurrencyConverter()
+def convert (value,in_currency, out_currency, converter=None):
+    if converter is None :
+        converter = CurrencyConverter()
     if in_currency == '$':
         in_currency = 'USD'
     elif in_currency == 'DEM' :
@@ -10,7 +11,7 @@ def convert (value,in_currency, out_currency):
     elif in_currency == 'FRF' :
         return value*0.172
 
-    result = c.convert(value,in_currency,out_currency)
+    result = converter.convert(value, in_currency, out_currency)
     return result
 
 def one_hot_encode_multiple (data,column_name, remove_column = True):
