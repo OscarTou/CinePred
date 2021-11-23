@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
-from utils import *
+from CinePred.data.utils import convert, one_hot_encode_multiple
 from currency_converter import CurrencyConverter
 
 
@@ -102,17 +102,18 @@ class Data:
 
         return self
 
-    def one_hot_encode(self,column_name):
+    def one_hot_encode(self,column_names):
         '''
-        for cell with multiple categories, one hot encode this column, for each categories
+        for cell with multiple categories, one hot encode a list of column, for each categories
 
         Parameters
         ----------
         columns_name : str
             name of the column to encode
         '''
-        self.dataframe = one_hot_encode_multiple(
-            self.dataframe, column_name)
+        for column_name in column_names:
+            self.dataframe = one_hot_encode_multiple(
+                self.dataframe, column_names)
         return self
 
     def convert_to_int(self,column_name):
