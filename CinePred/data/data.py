@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
-from utils import *
+from CinePred.data.utils import *
 import numpy as np
 from currency_converter import CurrencyConverter
 
@@ -28,7 +28,7 @@ class Data:
         '''
         read the CSV file located in self.link
         '''
-        self.dataframe = pd.read_csv(self.link)
+        self.dataframe = pd.read_csv(self.link, low_memory=False)
         return self
 
     def keep_columns(self, columns_names):
@@ -189,7 +189,7 @@ def example():
     print('----- filter categories -----')
     data.filter_categories("actors", nb=2)
     print('----- one hot encode -----')
-    data.one_hot_encode(column_names=['director','genre'])
+    #data.one_hot_encode(column_names=['director','genre'])
     #data.one_hot_encode(column_names='genre')
     #data.one_hot_encode(column_names='director')
 
