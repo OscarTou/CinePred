@@ -1,5 +1,6 @@
 import pandas as pd
 import seaborn as sns
+import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
 from CinePred.data.utils import convert, one_hot_encode_multiple
@@ -52,6 +53,24 @@ class Data:
         '''
         self.dataframe = self.dataframe.dropna()
         return self
+
+    def convert_income(self, column_name):
+        '''
+        convert income colomn in value $1000 -> 1000
+
+        Parameters
+        ----------
+        column_name : str
+            name of the column to convert
+        '''
+
+        self.dataframe[column_name] = self.dataframe[column_name].str.split()
+        self.dataframe[column_name] = self.dataframe[column_name].apply(
+            lambda x: x[1])
+        self.dataframe[column_name] = self.dataframe[column_name].astype(
+            str).astype(int)
+        return self
+
 
     def convert_budget_column(self,column_name='budget', out_currency = 'USD', min_rows=45):
         '''
@@ -154,6 +173,16 @@ class Data:
         self.dataframe = self.dataframe.reset_index()
         self.dataframe = self.dataframe.drop(columns='index')
 
+        return self
+
+    def add_sin_cos_features(self, column_name):
+        self.dataframe[column_name] = pd.DatetimeIndex(self.dataframe['date_published']).month
+        months = 12
+        self.dataframe["sin_MoPub"] = np.sin(2 * np.pi * self.dataframe.Month_published / months)
+        self.dataframe["cos_MoPub"] = np.cos(2 * np.pi * self.dataframe.Month_published /months)
+
+        return self
+
 
 def example():
     '''
@@ -179,10 +208,14 @@ def example():
     data.convert_budget_column(column_name='budget',min_rows=45, out_currency='USD')
     print('----- filter categories -----')
     data.filter_categories("actors", nb=2)
+
+    print('----- convert income column -----')
+    data.convert_income(column_name='worlwide_gross_income')
+
     print('----- one hot encode -----')
-    data.one_hot_encode(column_names=['director','genre'])
-    #data.one_hot_encode(column_names='genre')
-    #data.one_hot_encode(column_names='director')
+    #data.one_hot_encode(column_names=['director','genre'])
+    #data.one_hot_encode(column_names=['genre'])
+    #data.one_hot_encode(column_names=['director'])
 
     print('----- convert to int -----')
     data.convert_to_int('year')
@@ -190,6 +223,9 @@ def example():
 
     print('----- convert to date -----')
     data.convert_to_date('date_published')
+
+    print('----- seasonality Sin/Cos -----')
+    data.add_sin_cos_features('Month_published')
 
     print('----- reset index -----')
     data.reset_index()
