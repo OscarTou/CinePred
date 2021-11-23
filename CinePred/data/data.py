@@ -2,13 +2,13 @@ import pandas as pd
 import seaborn as sns
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
-from utils import *
+from CinePred.data.utils import convert, one_hot_encode_multiple
 from currency_converter import CurrencyConverter
 
 
 class Data:
     '''
-        class for cleaning,preprocessing and managing Data
+        class for cleaning, preprocessing and managing Data
     '''
 
     def __init__(self, link):
@@ -27,7 +27,7 @@ class Data:
         '''
         read the CSV file located in self.link
         '''
-        self.dataframe = pd.read_csv(self.link)
+        self.dataframe = pd.read_csv(self.link, low_memory=False)
         return self
 
     def keep_columns(self, columns_names):
@@ -100,7 +100,7 @@ class Data:
         columns_name : str
             name of the column to encode
         '''
-        self.dataframe[column_name] = one_hot_encode_multiple(
+        self.dataframe = one_hot_encode_multiple(
             self.dataframe, column_name)
         return self
 
@@ -146,7 +146,7 @@ def example():
     reset index to clean dataframe
     '''
     print('----- init Data -----')
-    data = Data('raw_data/IMDb movies.csv')
+    data = Data('../raw_data/IMDb movies.csv')
 
     print('----- import Data -----')
     data.import_data()
@@ -181,6 +181,7 @@ def example():
 
     print('----- data_shape -----')
     print(data.dataframe.shape)
+    return data.dataframe
 
 
 if __name__ == "__main__":
