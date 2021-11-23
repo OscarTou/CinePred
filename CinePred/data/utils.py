@@ -1,8 +1,9 @@
 from currency_converter import CurrencyConverter
 
 
-def convert (value,in_currency, out_currency):
-    c = CurrencyConverter()
+def convert (value,in_currency, out_currency, converter=None):
+    if converter is None :
+        converter = CurrencyConverter()
     if in_currency == '$':
         in_currency = 'USD'
     elif in_currency == 'DEM' :
@@ -10,7 +11,7 @@ def convert (value,in_currency, out_currency):
     elif in_currency == 'FRF' :
         return value*0.172
 
-    result = c.convert(value,in_currency,out_currency)
+    result = converter.convert(value, in_currency, out_currency)
     return result
 
 def one_hot_encode_multiple (data,column_name, remove_column = True):
@@ -36,4 +37,12 @@ def one_hot_encode_multiple (data,column_name, remove_column = True):
                 data.loc[index, val] = 1
 
     data.drop(column_name, axis = 1, inplace = True)
+    return data
+
+
+def reduce_column_type(data, column_name, nb_max=5):
+    # separate all actors into lists
+    actor_list = data[column_name].str.split(', ').tolist()
+    #return top 5 actors
+    data[column_name] = [','.join(actor[:nb_max]) for actor in actor_list]
     return data
