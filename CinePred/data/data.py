@@ -160,7 +160,7 @@ def example():
     reset index to clean dataframe
     '''
     print('----- init Data -----')
-    data = Data('raw_data/IMDb movies.csv')
+    data = Data('../raw_data/IMDb movies.csv')
 
     print('----- import Data -----')
     data.import_data()
