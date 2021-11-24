@@ -86,7 +86,7 @@ def convert_budget_column(df, column_name='budget', out_currency='USD'):
     df = df.drop(columns='currency')
     return df
 
-def convert_to_date(df, column_name, date_format='%Y-%m-%d'):
+def convert_to_date(df):
     '''
     convert column to datetime
 
@@ -98,8 +98,8 @@ def convert_to_date(df, column_name, date_format='%Y-%m-%d'):
     date_format : str , default '%Y-%m-%d'
         format of the dates in the column
     '''
-    df[column_name] = pd.to_datetime(
-        df[column_name], format=date_format)
+    df.apply(lambda x: pd.to_datetime(x, format='%Y-%m-%d'))
+    print('done convert')
     return df
 
 
@@ -107,14 +107,18 @@ def add_sin_features(df):
     '''
     seasonality: add sin column for each month
     '''
+    print('in sin')
     months = pd.DatetimeIndex(df).month
+    print('done sin')
     return np.sin(2 * np.pi * months / 12)
 
 def add_cos_features(df):
     '''
     seasonality: add cos column for each month
     '''
+    print('in cos')
     months = pd.DatetimeIndex(df).month
+    print('done cos')
     return np.cos(2 * np.pi * months / 12)
 
 def add_director_category(df):
