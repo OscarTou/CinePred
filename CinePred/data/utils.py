@@ -84,3 +84,33 @@ def convert_budget_column(df, column_name='budget', out_currency='USD'):
         lambda x: convert(x[column_name], x['currency'], 'USD', converter = c), axis=1)
     df = df.drop(columns='currency')
     return df
+
+def convert_to_date(df, column_name, date_format='%Y-%m-%d'):
+    '''
+    convert column to datetime
+
+    Parameters
+    ----------
+    column_name : str
+        name of the column to convert
+
+    date_format : str , default '%Y-%m-%d'
+        format of the dates in the column
+    '''
+    df[column_name] = pd.to_datetime(
+        df[column_name], format=date_format)
+    return df
+
+def add_sin_cos_features(df, column_name):
+    '''
+    seasonality: add sin & cos column for each month
+    '''
+    df.dataframe[column_name] = pd.DatetimeIndex(
+        df.dataframe['date_published']).month
+    months = 12
+    df.dataframe["sin_MoPub"] = np.sin(
+        2 * np.pi * df.dataframe.Month_published / months)
+    df.dataframe["cos_MoPub"] = np.cos(
+        2 * np.pi * df.dataframe.Month_published / months)
+
+    return df
