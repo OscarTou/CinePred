@@ -104,21 +104,19 @@ def convert_to_date(df, column_name, date_format='%Y-%m-%d'):
 
 def add_sin_features(df):
     '''
-    seasonality: add sin & cos column for each month
+    seasonality: add sin column for each month
     '''
     months = pd.DatetimeIndex(df).month
     return np.sin(2 * np.pi * months / 12)
 
-
 def add_cos_features(df):
     '''
-    seasonality: add sin & cos column for each month
+    seasonality: add cos column for each month
     '''
     months = pd.DatetimeIndex(df).month
     return np.cos(2 * np.pi * months / 12)
 
-
-def add_director_category(df, new_column_name='cat_director'):
+def add_director_category(df):
     '''
     Categroize director in 3 categories ranging from 1 to 3
     '''
@@ -126,8 +124,21 @@ def add_director_category(df, new_column_name='cat_director'):
                   bins=[0, 2, 10, 50],
                   include_lowest=True,
                   labels=[1, 2, 3])
-    df[new_column_name] = df.apply(lambda x: prod[str(x)])
-    return df
+    return df.apply(lambda x: prod[str(x)])
+
+
+def add_director_nbmovie(df):
+    #TODO
+    pass
+
+def add_actor_nbmovie(df):
+    #TODO
+    pass
+
+def add_writer_nbmovie(df):
+    #TODO
+    pass
+
 
 
 def add_prod_company_category(df, column_name, new_column_name='cat_production'):
