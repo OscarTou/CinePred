@@ -114,3 +114,41 @@ def add_sin_cos_features(df, column_name):
         2 * np.pi * df.dataframe.Month_published / months)
 
     return df
+
+
+def add_director_category(df, column_name, new_column_name='cat_director'):
+    '''
+    Categroize director in 3 categories ranging from 1 to 3
+    '''
+    prod = pd.cut(df[column_name].value_counts(),
+                  bins=[0, 2, 10, 50],
+                  include_lowest=True,
+                  labels=[1, 2, 3])
+    df[new_column_name] = df[column_name].map(lambda x: prod[str(x)])
+    return df
+
+
+def add_prod_company_category(df, column_name, new_column_name='cat_production'):
+    '''
+    Categorize production company in 5 categories ranging from 1 to 5
+    '''
+    prod = pd.cut(df[column_name].value_counts(),
+                  bins=[0, 1, 5, 20, 50, 500],
+                  include_lowest=True,
+                  labels=[1, 2, 3, 4, 5])
+    df[new_column_name] = df[column_name].map(
+        lambda x: prod[str(x)])
+    return df
+
+def add_writer_category(df, column_name, new_column_name='cat_writer'):
+    '''
+    Categorize writer in 5 categories ranging from 1 to 3
+    '''
+    prod = pd.cut(df[column_name].value_counts(),
+                  bins=[0, 1, 5, 40],
+                  include_lowest=True,
+                  labels=[1, 2, 3])
+    df[new_column_name] = df[column_name].map(
+        lambda x: prod[str(x)])
+
+    return df
