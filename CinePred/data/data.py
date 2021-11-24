@@ -9,7 +9,7 @@ from currency_converter import CurrencyConverter
 
 class Data:
     '''
-        class for cleaning,preprocessing and managing Data
+        class for cleaning, preprocessing and managing Data
     '''
 
     def __init__(self, link):
@@ -54,7 +54,7 @@ class Data:
         self.dataframe = self.dataframe.dropna()
         return self
 
-    def convert_income(self, column_name):
+    def convert_income(self, column_name='worlwide_gross_income'):
         '''
         convert income colomn in value $1000 -> 1000
 
@@ -105,7 +105,7 @@ class Data:
 
         c = CurrencyConverter()
         self.dataframe[column_name] = self.dataframe[[column_name,'currency']]\
-            .apply(lambda x: convert(x[column_name], x['currency'], 'USD',converter = c), axis=1)
+            .apply(lambda x: convert(x[column_name], x['currency'], 'USD', converter = c), axis=1)
         self.dataframe = self.dataframe.drop(columns='currency')
 
         return self
@@ -226,7 +226,7 @@ def example():
     reset index to clean dataframe
     '''
     print('----- init Data -----')
-    data = Data('raw_data/IMDb movies.csv')
+    data = Data('../raw_data/IMDb movies.csv')
 
     print('----- import Data -----')
     data.import_data()
@@ -278,6 +278,7 @@ def example():
 
     print('----- data_shape -----')
     print(data.dataframe.shape)
+    return data.dataframe
 
 
 if __name__ == "__main__":
