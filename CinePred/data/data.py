@@ -1,5 +1,6 @@
 import pandas as pd
 import seaborn as sns
+import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
 from CinePred.data.utils import *
@@ -123,6 +124,7 @@ class Data:
 
     def one_hot_encode(self,column_names):
         '''
+        for cell with multiple categories, one hot encode a list of column, for each categories
         for cell with multiple categories, one hot encode for each column, each categories
 
         Parameters
@@ -130,6 +132,7 @@ class Data:
         columns_name : array str
             name list of the columns to encode
         '''
+
         for column_name in column_names :
             self.dataframe = one_hot_encode_multiple(
                 self.dataframe, column_name)
