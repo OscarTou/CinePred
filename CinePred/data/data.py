@@ -184,6 +184,17 @@ class Data:
 
         return self
 
+    def add_director_category(self, existing_column_name, new_column_name):
+        '''
+        Categroize director in 3 categories ranging from 1 to 3
+        '''
+        prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
+                      bins=[0, 2, 10, 50],
+                      include_lowest=True,
+                      labels=[1, 2, 3])
+        self.dataframe[new_column_name] = self.dataframe[
+            existing_column_name].map(lambda x: prod[str(x)])
+        return self
 
     def add_prod_company_category(self,existing_column_name, new_column_name):
         '''
@@ -242,6 +253,9 @@ def example():
 
     print('----- categorize production company -----')
     data.add_prod_company_category("production_company", "production_weight")
+
+    print('----- categorize director -----')
+    data.add_director_category('director', 'cat_director')
 
     print('----- reset index -----')
     data.reset_index()
