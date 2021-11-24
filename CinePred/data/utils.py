@@ -1,4 +1,5 @@
 from currency_converter import CurrencyConverter
+
 import pandas as pd
 import numpy as np
 
@@ -103,22 +104,20 @@ def convert_to_date(df, date_format='%Y-%m-%d'):
 
 def add_sin_features(df):
     '''
-    seasonality: add sin & cos column for each month
+    seasonality: add sin column for each month
     '''
     months = df.apply(lambda x: pd.DatetimeIndex(x).month)
     result =  np.sin(2 * np.pi * months / 12)
     return result
 
-
 def add_cos_features(df):
     '''
-    seasonality: add sin & cos column for each month
+    seasonality: add cos column for each month
     '''
     months = df.apply(lambda x: pd.DatetimeIndex(x).month)
     return np.cos(2 * np.pi * months / 12)
 
-
-def add_director_category(df, new_column_name='cat_director'):
+def add_director_category(df):
     '''
     Categroize director in 3 categories ranging from 1 to 3
     '''
@@ -126,31 +125,42 @@ def add_director_category(df, new_column_name='cat_director'):
                   bins=[0, 2, 10, 50],
                   include_lowest=True,
                   labels=[1, 2, 3])
-    df[new_column_name] = df.apply(lambda x: prod[str(x)])
-    return df
+    return df.apply(lambda x: prod[str(x)])
 
-
-def add_prod_company_category(df, column_name, new_column_name='cat_production'):
+def add_prod_company_category(df):
     '''
     Categorize production company in 5 categories ranging from 1 to 5
     '''
-    prod = pd.cut(df[column_name].value_counts(),
-                  bins=[0, 1, 5, 20, 50, 500],
-                  include_lowest=True,
-                  labels=[1, 2, 3, 4, 5])
-    df[new_column_name] = df[column_name].map(
-        lambda x: prod[str(x)])
-    return df
+    prod = pd.cut(df.value_counts(),
+                    bins=[0, 1, 5, 20, 50, 500],
+                    include_lowest=True,
+                    labels=[1, 2, 3, 4, 5])
+    return df.apply(lambda x: prod[str(x)])
 
-def add_writer_category(df, column_name, new_column_name='cat_writer'):
+
+def add_writer_category(df):
     '''
     Categorize writer in 5 categories ranging from 1 to 3
     '''
-    prod = pd.cut(df[column_name].value_counts(),
+    prod = pd.cut(df.value_counts(),
                   bins=[0, 1, 5, 40],
                   include_lowest=True,
                   labels=[1, 2, 3])
-    df[new_column_name] = df[column_name].map(
-        lambda x: prod[str(x)])
+    return df.apply(lambda x: prod[str(x)])
 
+
+def add_director_nbmovie(df):
+    #TODO Ruben
+    pass
+
+def add_actor_nbmovie(df):
+    #TODO Ruben
+    pass
+
+def add_writer_nbmovie(df):
+    #TODO Ruben
+    pass
+
+def log_transformation(df):
+    df = np.log(df)
     return df
