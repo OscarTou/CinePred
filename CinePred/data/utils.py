@@ -101,30 +101,27 @@ def convert_to_date(df, column_name, date_format='%Y-%m-%d'):
         df[column_name], format=date_format)
     return df
 
-def add_sin_cos_features(df, column_name):
+
+def add_sin_cos_features(df):
     '''
     seasonality: add sin & cos column for each month
     '''
-    df.dataframe[column_name] = pd.DatetimeIndex(
-        df.dataframe['date_published']).month
-    months = 12
-    df.dataframe["sin_MoPub"] = np.sin(
-        2 * np.pi * df.dataframe.Month_published / months)
-    df.dataframe["cos_MoPub"] = np.cos(
-        2 * np.pi * df.dataframe.Month_published / months)
+    months = pd.DatetimeIndex(df).month
+    df["sin_MoPub"] = np.sin(2 * np.pi * months / 12)
+    df["cos_MoPub"] = np.cos(2 * np.pi * months / 12)
 
     return df
 
 
-def add_director_category(df, column_name, new_column_name='cat_director'):
+def add_director_category(df, new_column_name='cat_director'):
     '''
     Categroize director in 3 categories ranging from 1 to 3
     '''
-    prod = pd.cut(df[column_name].value_counts(),
+    prod = pd.cut(df.value_counts(),
                   bins=[0, 2, 10, 50],
                   include_lowest=True,
                   labels=[1, 2, 3])
-    df[new_column_name] = df[column_name].map(lambda x: prod[str(x)])
+    df[new_column_name] = df.apply(lambda x: prod[str(x)])
     return df
 
 
