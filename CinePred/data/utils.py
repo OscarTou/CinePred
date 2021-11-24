@@ -46,3 +46,5 @@ def reduce_column_type(data, column_name, nb_max=5):
     #return top 5 actors
     data[column_name] = [','.join(actor[:nb_max]) for actor in actor_list]
     return data
+
+
