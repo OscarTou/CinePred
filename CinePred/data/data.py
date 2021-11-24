@@ -2,7 +2,7 @@ import pandas as pd
 import seaborn as sns
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
-from utils import *
+from CinePred.data.utils import *
 import numpy as np
 from currency_converter import CurrencyConverter
 
