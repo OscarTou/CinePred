@@ -184,10 +184,21 @@ class Data:
 
         return self
 
+    def add_director_category(self, existing_column_name, new_column_name):
+        '''
+        Categroize director in 3 categories ranging from 1 to 3
+        '''
+        prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
+                      bins=[0, 2, 10, 50],
+                      include_lowest=True,
+                      labels=[1, 2, 3])
+        self.dataframe[new_column_name] = self.dataframe[
+            existing_column_name].map(lambda x: prod[str(x)])
+        return self
 
     def add_prod_company_category(self,existing_column_name, new_column_name):
         '''
-        Categroize production company in 5 categories ranging from 1 to 5
+        Categorize production company in 5 categories ranging from 1 to 5
         '''
         prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
                       bins=[0, 1, 5, 20, 50, 500],
@@ -196,16 +207,19 @@ class Data:
         self.dataframe[new_column_name] = self.dataframe[existing_column_name].map(lambda x: prod[str(x)])
         return self
 
-    def add_director_category(self,existing_column_name, new_column_name):
+    def add_writer_category(self, existing_column_name, new_column_name):
         '''
-        Categroize director in 3 categories ranging from 1 to 3
+        Categroize production company in 5 categories ranging from 1 to 5
         '''
         prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
-                      bins=[0, 2, 10, 50],
+                      bins=[0, 1, 5, 40],
                       include_lowest=True,
                       labels=[1, 2, 3])
-        self.dataframe[new_column_name] = self.dataframe[existing_column_name].map(lambda x: prod[str(x)])
+        self.dataframe[new_column_name] = self.dataframe[
+            existing_column_name].map(lambda x: prod[str(x)])
+
         return self
+
 
 def example():
     '''
@@ -254,7 +268,10 @@ def example():
     data.add_prod_company_category("production_company", "production_weight")
 
     print('----- categorize director -----')
-    data.add_director_category("director", "cat_director")
+    data.add_director_category('director', 'cat_director')
+
+    print('----- categorize writer -----')
+    data.add_writer_category("production_company", "production_weight")
 
     print('----- reset index -----')
     data.reset_index()
