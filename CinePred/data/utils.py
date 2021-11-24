@@ -1,4 +1,5 @@
 from currency_converter import CurrencyConverter
+
 import pandas as pd
 import numpy as np
 
@@ -155,7 +156,12 @@ def add_director_nbmovie(df):
 def add_actor_nbmovie(df):
     #TODO
     pass
-
+  
 def add_writer_nbmovie(df):
     #TODO
     pass
+
+def log_transformation(df):
+    df = np.log(df)
+
+    return df
