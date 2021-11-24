@@ -63,7 +63,7 @@ class Data:
         column_name : str
             name of the column to convert
         '''
-
+        
         self.dataframe[column_name] = self.dataframe[column_name].str.split()
         self.dataframe[column_name] = self.dataframe[column_name].apply(
             lambda x: x[1])

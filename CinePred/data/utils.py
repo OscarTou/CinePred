@@ -102,15 +102,20 @@ def convert_to_date(df, column_name, date_format='%Y-%m-%d'):
     return df
 
 
-def add_sin_cos_features(df):
+def add_sin_features(df):
     '''
     seasonality: add sin & cos column for each month
     '''
     months = pd.DatetimeIndex(df).month
-    df["sin_MoPub"] = np.sin(2 * np.pi * months / 12)
-    df["cos_MoPub"] = np.cos(2 * np.pi * months / 12)
+    return np.sin(2 * np.pi * months / 12)
 
-    return df
+
+def add_cos_features(df):
+    '''
+    seasonality: add sin & cos column for each month
+    '''
+    months = pd.DatetimeIndex(df).month
+    return np.cos(2 * np.pi * months / 12)
 
 
 def add_director_category(df, new_column_name='cat_director'):
