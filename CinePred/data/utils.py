@@ -150,18 +150,17 @@ def add_writer_category(df):
 
 
 def add_director_nbmovie(df):
-    #TODO
+    #TODO Ruben
     pass
 
 def add_actor_nbmovie(df):
-    #TODO
+    #TODO Ruben
     pass
-  
+
 def add_writer_nbmovie(df):
-    #TODO
+    #TODO Ruben
     pass
 
 def log_transformation(df):
     df = np.log(df)
-
     return df
