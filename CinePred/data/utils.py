@@ -126,6 +126,27 @@ def add_director_category(df):
                   labels=[1, 2, 3])
     return df.apply(lambda x: prod[str(x)])
 
+def add_prod_company_category(df):
+    '''
+    Categorize production company in 5 categories ranging from 1 to 5
+    '''
+    prod = pd.cut(df.value_counts(),
+                    bins=[0, 1, 5, 20, 50, 500],
+                    include_lowest=True,
+                    labels=[1, 2, 3, 4, 5])
+    return df.apply(lambda x: prod[str(x)])
+
+
+def add_writer_category(df, column_name, new_column_name='cat_writer'):
+    '''
+    Categorize writer in 5 categories ranging from 1 to 3
+    '''
+    prod = pd.cut(df.value_counts(),
+                  bins=[0, 1, 5, 40],
+                  include_lowest=True,
+                  labels=[1, 2, 3])
+    return df.apply(lambda x: prod[str(x)])
+
 
 def add_director_nbmovie(df):
     #TODO
@@ -138,30 +159,3 @@ def add_actor_nbmovie(df):
 def add_writer_nbmovie(df):
     #TODO
     pass
-
-
-
-def add_prod_company_category(df, column_name, new_column_name='cat_production'):
-    '''
-    Categorize production company in 5 categories ranging from 1 to 5
-    '''
-    prod = pd.cut(df[column_name].value_counts(),
-                  bins=[0, 1, 5, 20, 50, 500],
-                  include_lowest=True,
-                  labels=[1, 2, 3, 4, 5])
-    df[new_column_name] = df[column_name].map(
-        lambda x: prod[str(x)])
-    return df
-
-def add_writer_category(df, column_name, new_column_name='cat_writer'):
-    '''
-    Categorize writer in 5 categories ranging from 1 to 3
-    '''
-    prod = pd.cut(df[column_name].value_counts(),
-                  bins=[0, 1, 5, 40],
-                  include_lowest=True,
-                  labels=[1, 2, 3])
-    df[new_column_name] = df[column_name].map(
-        lambda x: prod[str(x)])
-
-    return df
