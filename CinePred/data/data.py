@@ -187,26 +187,13 @@ class Data:
 
     def add_prod_company_category(self,existing_column_name, new_column_name):
         '''
-        Categroize production company in 5 categories ranging from 1 to 5
+        Categorize production company in 5 categories ranging from 1 to 5
         '''
         prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
                       bins=[0, 1, 5, 20, 50, 500],
                       include_lowest=True,
                       labels=[1, 2, 3, 4, 5])
         self.dataframe[new_column_name] = self.dataframe[existing_column_name].map(lambda x: prod[str(x)])
-        return self
-
-    def add_writer_category(self, existing_column_name, new_column_name):
-        '''
-        Categroize production company in 5 categories ranging from 1 to 5
-        '''
-        prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
-                      bins=[0, 1, 5, 40],
-                      include_lowest=True,
-                      labels=[1, 2, 3])
-        self.dataframe[new_column_name] = self.dataframe[
-            existing_column_name].map(lambda x: prod[str(x)])
-
         return self
 
 
@@ -255,9 +242,6 @@ def example():
 
     print('----- categorize production company -----')
     data.add_prod_company_category("production_company", "production_weight")
-
-    print('----- categorize writer -----')
-    data.add_writer_category("production_company", "production_weight")
 
     print('----- reset index -----')
     data.reset_index()
