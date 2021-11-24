@@ -137,7 +137,7 @@ def add_prod_company_category(df):
     return df.apply(lambda x: prod[str(x)])
 
 
-def add_writer_category(df, column_name, new_column_name='cat_writer'):
+def add_writer_category(df):
     '''
     Categorize writer in 5 categories ranging from 1 to 3
     '''
