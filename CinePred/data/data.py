@@ -163,8 +163,10 @@ class Data:
         date_format : str , default '%Y-%m-%d'
             format of the dates in the column
         '''
-        self.dataframe[column_name] = pd.to_datetime(
-            self.dataframe[column_name], format=date_format)
+        self.dataframe[column_name] = self.dataframe[column_name].apply(
+            lambda x: pd.to_datetime(x, format=date_format))
+        #self.dataframe[column_name] = pd.to_datetime(
+        #    self.dataframe[column_name], format=date_format)
         return self
 
     def reset_index(self):
