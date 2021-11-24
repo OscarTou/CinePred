@@ -1,4 +1,5 @@
 from currency_converter import CurrencyConverter
+import numpy as np
 
 
 def convert (value,in_currency, out_currency, converter=None):
@@ -48,3 +49,7 @@ def reduce_column_type(data, column_name, nb_max=5):
     return data
 
 
+def log_transformation(df):
+    df = np.log(df)
+
+    return df
