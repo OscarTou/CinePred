@@ -1,4 +1,11 @@
+
+from currency_converter import CurrencyConverter
+
+import pandas as pd
+import numpy as np
+import cpi
 from CinePred.params import *
+
 
 
 def convert(value, in_currency, out_currency, converter=None):
@@ -176,3 +183,7 @@ def log_transformation(df):
 def add_cum_budget_per_production_company(prod_comp, budget):
     cum_bpc = budget.groupby(by=prod_comp).sum()
     return prod_comp.apply(lambda x: cum_bpc[(x)])
+
+def add_inflation_budget(df,column_year,column_money):
+    df["year_2"] = df[column_year].apply(lambda x: 2018 if x > 2018 else x)
+    return df.apply(lambda x: cpi.inflate(x[column_money], x["year_2"], axis=1))
