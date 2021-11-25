@@ -18,4 +18,4 @@ class ProdCompOHE(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         # create columns by each unique genre
-        
+        return self

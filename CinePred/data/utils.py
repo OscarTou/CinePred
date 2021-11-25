@@ -149,18 +149,19 @@ def add_writer_category(df):
     return df.apply(lambda x: prod[str(x)])
 
 
-def add_director_nbmovie(df):
-    #TODO Ruben
-    pass
+def add_count_times(df):
+    list_of_nbmovies_production = df.value_counts()
+    return  df.apply( lambda x: list_of_nbmovies_production[x])
+
 
 def add_actor_nbmovie(df):
-    #TODO Ruben
-    pass
-
-def add_writer_nbmovie(df):
     #TODO Ruben
     pass
 
 def log_transformation(df):
     df = np.log(df)
     return df
+
+def add_cum_budget_per_production_company(prod_comp, budget):
+    cum_bpc = budget.groupby(by=prod_comp).sum()
+    return prod_comp.apply(lambda x: cum_bpc[(x)])
