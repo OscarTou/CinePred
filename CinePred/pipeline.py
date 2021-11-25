@@ -46,12 +46,7 @@ def create_pipeline():
         (director_transformer, ['director']),
     )
 
-    pipeline = make_pipeline(
-        preproc_basic,
-        XGBRegressor(max_depth=5, n_estimators=100,
-                     learning_rate=0.1))  # GradientBoostingRegressor
-
-    return pipeline
+    return preproc_basic
 
 
 # FIT & PREDICT
@@ -64,8 +59,29 @@ def fit_and_score(pipeline, X, y):
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
 
-        pipeline.fit(X_train, y_train)
-        y_pred = pipeline.predict(X_test)
+        X_preproc = pipeline.fit_transform(X_train)
+        X_train_preproc = X_preproc[:-400]
+        X_val_preproc = X_preproc[-400:]
+        y_train_preproc = y_train[:-400]
+        y_val_preproc = y_train[-400:]
+
+        model_xgb = XGBRegressor(max_depth=5, n_estimators=100, learning_rate=0.1)
+        model_xgb.fit(X_train_preproc,
+                      y_train_preproc,
+                      eval_set=[(X_train_preproc, y_train_preproc),
+                                (X_val_preproc, y_val_preproc)],
+                      eval_metric=["mae"],
+                      early_stopping_rounds=5)
+
+        best_iter = model_xgb.best_iteration
+        model_xgb2 = XGBRegressor(max_depth=5,
+                                 n_estimators=100,
+                                 learning_rate=0.1)
+        print(best_iter)
+        model_xgb2.fit(X_preproc, y, n_iter=best_iter)
+
+        X_test_preproc = pipeline.fit_transform(X_test)
+        y_pred = model_xgb.predict(X_test_preproc)
         mae.append(mean_absolute_error(y_test, y_pred))
     print("MAE: ", mae[-1])
     return mae
