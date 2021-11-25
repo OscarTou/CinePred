@@ -149,15 +149,12 @@ def add_writer_category(df):
     return df.apply(lambda x: prod[str(x)])
 
 
-def add_director_nbmovie(df):
-    #TODO Ruben
-    pass
+def add_count_times(df):
+    list_of_nbmovies_production = df.value_counts()
+    return  df.apply( lambda x: list_of_nbmovies_production[x])
+
 
 def add_actor_nbmovie(df):
-    #TODO Ruben
-    pass
-
-def add_writer_nbmovie(df):
     #TODO Ruben
     pass
 
