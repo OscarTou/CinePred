@@ -30,3 +30,4 @@ termcolor
 
 #specific
 currencyconverter
+cpi

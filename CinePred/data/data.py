@@ -1,6 +1,7 @@
 from os import link
 import pandas as pd
 import seaborn as sns
+import numpy as np
 from sklearn.preprocessing import OneHotEncoder
 from datetime import date
 from CinePred.data.utils import *
@@ -10,7 +11,7 @@ from currency_converter import CurrencyConverter
 
 class Data:
     '''
-        class for cleaning,preprocessing and managing Data
+        class for cleaning, preprocessing and managing Data
     '''
 
     def __init__(self, link):
@@ -29,7 +30,7 @@ class Data:
         '''
         read the CSV file located in self.link
         '''
-        self.dataframe = pd.read_csv(self.link)
+        self.dataframe = pd.read_csv(self.link, low_memory=False)
         return self
 
     def keep_columns(self, columns_names):
@@ -55,7 +56,7 @@ class Data:
         self.dataframe = self.dataframe.dropna()
         return self
 
-    def convert_income(self, column_name):
+    def convert_income(self, column_name='worlwide_gross_income'):
         '''
         convert income colomn in value $1000 -> 1000
 
@@ -106,7 +107,7 @@ class Data:
 
         c = CurrencyConverter()
         self.dataframe[column_name] = self.dataframe[[column_name,'currency']]\
-            .apply(lambda x: convert(x[column_name], x['currency'], 'USD',converter = c), axis=1)
+            .apply(lambda x: convert(x[column_name], x['currency'], 'USD', converter = c), axis=1)
         self.dataframe = self.dataframe.drop(columns='currency')
 
         return self
@@ -124,6 +125,7 @@ class Data:
 
     def one_hot_encode(self,column_names):
         '''
+        for cell with multiple categories, one hot encode a list of column, for each categories
         for cell with multiple categories, one hot encode for each column, each categories
 
         Parameters
@@ -131,6 +133,7 @@ class Data:
         columns_name : array str
             name list of the columns to encode
         '''
+
         for column_name in column_names :
             self.dataframe = one_hot_encode_multiple(
                 self.dataframe, column_name)
@@ -161,8 +164,8 @@ class Data:
         date_format : str , default '%Y-%m-%d'
             format of the dates in the column
         '''
-        self.dataframe[column_name] = pd.to_datetime(
-            self.dataframe[column_name], format=date_format)
+        self.dataframe[column_name] = self.dataframe[column_name].apply(
+            lambda x: pd.to_datetime(x, format=date_format))
         return self
 
     def reset_index(self):
@@ -175,12 +178,52 @@ class Data:
         return self
 
     def add_sin_cos_features(self, column_name):
+        '''
+        seasonality: add sin & cos column for each month
+        '''
         self.dataframe[column_name] = pd.DatetimeIndex(self.dataframe['date_published']).month
         months = 12
         self.dataframe["sin_MoPub"] = np.sin(2 * np.pi * self.dataframe.Month_published / months)
         self.dataframe["cos_MoPub"] = np.cos(2 * np.pi * self.dataframe.Month_published /months)
 
         return self
+      
+    def add_director_category(self, existing_column_name, new_column_name):
+        '''
+        Categroize director in 3 categories ranging from 1 to 3
+        '''
+        prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
+                      bins=[0, 2, 10, 50],
+                      include_lowest=True,
+                      labels=[1, 2, 3])
+        self.dataframe[new_column_name] = self.dataframe[
+            existing_column_name].map(lambda x: prod[str(x)])
+        return self
+
+    def add_prod_company_category(self,existing_column_name, new_column_name):
+        '''
+        Categorize production company in 5 categories ranging from 1 to 5
+        '''
+        prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
+                      bins=[0, 1, 5, 20, 50, 500],
+                      include_lowest=True,
+                      labels=[1, 2, 3, 4, 5])
+        self.dataframe[new_column_name] = self.dataframe[existing_column_name].map(lambda x: prod[str(x)])
+        return self
+
+    def add_writer_category(self, existing_column_name, new_column_name):
+        '''
+        Categroize production company in 5 categories ranging from 1 to 5
+        '''
+        prod = pd.cut(self.dataframe[existing_column_name].value_counts(),
+                      bins=[0, 1, 5, 40],
+                      include_lowest=True,
+                      labels=[1, 2, 3])
+        self.dataframe[new_column_name] = self.dataframe[
+            existing_column_name].map(lambda x: prod[str(x)])
+
+        return self
+      
 
 def famour_or_not_famous(X):
     if (X['budget'] >= 100_000_000) & (X['ratio'] >= 3):
@@ -217,7 +260,7 @@ def example():
     reset index to clean dataframe
     '''
     print('----- init Data -----')
-    data = Data('raw_data/IMDb movies.csv')
+    data = Data('../raw_data/IMDb movies.csv')
 
     print('----- import Data -----')
     data.import_data()
@@ -255,11 +298,21 @@ def example():
     print('----- seasonality Sin/Cos -----')
     data.add_sin_cos_features('Month_published')
 
+    print('----- categorize production company -----')
+    data.add_prod_company_category("production_company", "production_weight")
+
+    print('----- categorize director -----')
+    data.add_director_category('director', 'cat_director')
+
+    print('----- categorize writer -----')
+    data.add_writer_category("production_company", "production_weight")
+
     print('----- reset index -----')
     data.reset_index()
 
     print('----- data_shape -----')
     print(data.dataframe.shape)
+    return data.dataframe
 
 
 if __name__ == "__main__":

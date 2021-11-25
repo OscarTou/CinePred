@@ -1,28 +1,42 @@
-from sklearn.model_selection import TimeSeriesSplit
-from sklearn.metrics import r2_score
+from CinePred.params import *
+from CinePred.pipeline import import_clean_df, fit_and_score
 
 
-def get_baseline_scores(model, X, y):
-    """
-        Baseline model
+def create_pipeline():
+    # PIPELINE
+    sin_transformer = FunctionTransformer(add_sin_features)
+    cos_transformer = FunctionTransformer(add_cos_features)
 
-        Input:
-            X, y: sorted by year (ascending), cleaning and scaled
-            model: LinearRegression (for example)
+    int_transformer = FunctionTransformer(convert_to_int)
+    time_pipeline = make_pipeline(int_transformer, RobustScaler())
 
-        Returns:
-            r2: a list of 5 r2 scores
-    """
+    budget_transformer = FunctionTransformer(convert_budget_column)
+    genre_transformer = make_pipeline(GenreOHE())
+    prod_transformer = FunctionTransformer(prod_count_times)
+    writer_transformer = FunctionTransformer(writer_count_times)
+    director_transformer = FunctionTransformer(director_count_times)
 
-    r2 = []
-    tscv = TimeSeriesSplit(n_splits=5)
-    for train_index, test_index in tscv.split(X):
-        print("TRAIN:", train_index, "TEST:", test_index)
-        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+    preproc_basic = make_column_transformer(
+        (time_pipeline, ['year', 'duration']),
+        (budget_transformer, ['budget']),
+        (sin_transformer, ['date_published']),
+        (cos_transformer, ['date_published']),
+        (genre_transformer, ['genre']))
 
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        r2.append(r2_score(y_test, y_pred))
-    print("R2 scores: ", r2)
-    return r2
+    pipeline = make_pipeline(preproc_basic, LinearRegression())
+
+    return pipeline
+
+
+
+if __name__ == '__main__':
+    # DECLARE X & Y
+    data = import_clean_df()
+    X = data.dataframe[[
+        'budget', 'genre', 'duration', 'year', 'date_published',
+    ]]
+    y = data.dataframe['worlwide_gross_income']
+    y = np.log(y) / np.log(10)
+
+    pipeline = create_pipeline()
+    mae = fit_and_score(pipeline, X, y)
