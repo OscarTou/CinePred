@@ -1,22 +1,4 @@
-# IMPORT
-import numpy as np
-
-from sklearn.model_selection import TimeSeriesSplit
-from sklearn.metrics import mean_absolute_error
-
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.preprocessing import RobustScaler, OneHotEncoder
-
-from currency_converter import CurrencyConverter
-from CinePred.data.utils import convert_budget_column, convert_to_int, \
-    add_sin_features, add_cos_features
-from CinePred.data.data import Data
-from CinePred.data.genre_ohe import GenreOHE
-from sklearn.pipeline import make_pipeline
-from sklearn.compose import make_column_transformer
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.model_selection import GridSearchCV
-
+from CinePred.params import *
 
 
 def import_clean_df():
@@ -49,21 +31,31 @@ def create_pipeline():
 
     budget_transformer = FunctionTransformer(convert_budget_column)
     genre_transformer = make_pipeline(GenreOHE())
+    prod_transformer = FunctionTransformer(prod_count_times)
+    writer_transformer = FunctionTransformer(writer_count_times)
+    director_transformer = FunctionTransformer(director_count_times)
 
     preproc_basic = make_column_transformer(
         (time_pipeline, ['year', 'duration']),
         (budget_transformer, ['budget']),
         (sin_transformer, ['date_published']),
         (cos_transformer, ['date_published']),
-        (genre_transformer, ['genre']))
+        (genre_transformer, ['genre']),
+        (prod_transformer, ['production_company']),
+        (writer_transformer, ['writer']),
+        (director_transformer, ['director']),
+    )
 
-    pipeline = make_pipeline(preproc_basic, GradientBoostingRegressor())
+    pipeline = make_pipeline(
+        preproc_basic,
+        XGBRegressor(max_depth=10, n_estimators=100,
+                     learning_rate=0.1))  # GradientBoostingRegressor
 
     return pipeline
 
 
 # FIT & PREDICT
-def baseline(pipeline, X, y):
+def fit_and_score(pipeline, X, y):
     """ Returns a list of 5 mae scores"""
     mae = []
     tscv = TimeSeriesSplit(n_splits=5)
@@ -103,13 +95,13 @@ if __name__=='__main__':
     data = import_clean_df()
     X = data.dataframe[[
         'budget', 'genre', 'duration', 'year', 'date_published',
-        'production_company'
+        'production_company', 'writer', 'director'
     ]]
     y = data.dataframe['worlwide_gross_income']
     y = np.log(y) / np.log(10)
 
     pipeline = create_pipeline()
-    #mae = baseline(pipeline, X, y)
+    mae = fit_and_score(pipeline, X, y)
 
     #grid_search = get_best_params(pipeline)
     #print("Best params for GBD: ", grid_search.best_params_)

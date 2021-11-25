@@ -1,7 +1,4 @@
-from currency_converter import CurrencyConverter
-
-import pandas as pd
-import numpy as np
+from CinePred.params import *
 
 
 def convert(value, in_currency, out_currency, converter=None):
@@ -149,10 +146,24 @@ def add_writer_category(df):
     return df.apply(lambda x: prod[str(x)])
 
 
-def add_count_times(df):
-    list_of_nbmovies_production = df.value_counts()
-    return  df.apply( lambda x: list_of_nbmovies_production[x])
+def prod_count_times(data):
+    df = data.copy()
+    count_times = df['production_company'].value_counts()
+    df['production_company'] = df['production_company'].apply(
+        lambda x: count_times[str(x)])
+    return df
 
+def writer_count_times(data):
+    df = data.copy()
+    count_times = df['writer'].value_counts()
+    df['writer'] = df['writer'].apply(lambda x: count_times[str(x)])
+    return df
+
+def director_count_times(data):
+    df = data.copy()
+    count_times = df['director'].value_counts()
+    df['director'] = df['director'].apply(lambda x: count_times[str(x)])
+    return df
 
 def add_actor_nbmovie(df):
     #TODO Ruben
