@@ -1,11 +1,7 @@
-
 from currency_converter import CurrencyConverter
 
 import pandas as pd
 import numpy as np
-import cpi
-from CinePred.params import *
-
 
 
 def convert(value, in_currency, out_currency, converter=None):
@@ -153,37 +149,18 @@ def add_writer_category(df):
     return df.apply(lambda x: prod[str(x)])
 
 
-def prod_count_times(data):
-    df = data.copy()
-    count_times = df['production_company'].value_counts()
-    df['production_company'] = df['production_company'].apply(
-        lambda x: count_times[str(x)])
-    return df
-
-def writer_count_times(data):
-    df = data.copy()
-    count_times = df['writer'].value_counts()
-    df['writer'] = df['writer'].apply(lambda x: count_times[str(x)])
-    return df
-
-def director_count_times(data):
-    df = data.copy()
-    count_times = df['director'].value_counts()
-    df['director'] = df['director'].apply(lambda x: count_times[str(x)])
-    return df
+def add_director_nbmovie(df):
+    #TODO Ruben
+    pass
 
 def add_actor_nbmovie(df):
+    #TODO Ruben
+    pass
+
+def add_writer_nbmovie(df):
     #TODO Ruben
     pass
 
 def log_transformation(df):
     df = np.log(df)
     return df
-
-def add_cum_budget_per_production_company(prod_comp, budget):
-    cum_bpc = budget.groupby(by=prod_comp).sum()
-    return prod_comp.apply(lambda x: cum_bpc[(x)])
-
-def add_inflation_budget(df,column_year,column_money):
-    df["year_2"] = df[column_year].apply(lambda x: 2018 if x > 2018 else x)
-    return df.apply(lambda x: cpi.inflate(x[column_money], x["year_2"], axis=1))
