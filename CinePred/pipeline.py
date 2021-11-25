@@ -25,9 +25,12 @@ def import_clean_df():
     data.import_data()
 
     # CLEANING
-    print(data.dataframe.shape)
+    data.keep_columns(columns_names=[
+        'imdb_title_id', 'title', 'year', 'date_published', 'genre',
+        'duration', 'country', 'director', 'writer', 'production_company',
+        'actors', 'budget', 'worlwide_gross_income'
+    ])
     data.remove_na_rows()
-    print(data.dataframe.shape)
     data.convert_income(column_name='worlwide_gross_income')
     data.convert_to_date(column_name='date_published')
     data.dataframe.sort_values(by='date_published', inplace=True)
