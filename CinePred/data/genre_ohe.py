@@ -19,6 +19,8 @@ class GenreOHE(BaseEstimator, TransformerMixin):
         # back to list
         self.list_unique_genre = list(set_genre)
 
+        return self
+
     def transform(self, X):
         # create columns by each unique genre
         data = X.reindex(X.columns.tolist() + self.list_unique_genre,
