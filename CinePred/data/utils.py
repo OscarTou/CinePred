@@ -164,3 +164,7 @@ def add_writer_nbmovie(df):
 def log_transformation(df):
     df = np.log(df)
     return df
+
+def add_cum_budget_per_production_company(prod_comp, budget):
+    cum_bpc = budget.groupby(by=prod_comp).sum()
+    return prod_comp.apply(lambda x: cum_bpc[(x)])
