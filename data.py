@@ -1,4 +1,3 @@
-from os import link
 import pandas as pd
 import seaborn as sns
 from sklearn.preprocessing import OneHotEncoder
@@ -182,35 +181,6 @@ class Data:
 
         return self
 
-def famour_or_not_famous(X):
-    if (X['budget'] >= 100_000_000) & (X['ratio'] >= 3):
-        return 1
-    return 0
-
-def add_success_movies_per_actors(df):
-    '''
-    Function that count how many success movies an actor did in his timeline. Add weight in function of the times
-    '''
-    df2 = pd.read_csv('../raw_data/cat_acteur.csv')
-    df2['ratio'] = df2['income']/df2['budget']
-    # acteurs_df_cat = df2.loc[(df2['ratio']>=5) & (df2['budget'] >= 100_000_000)]
-    # top_tier_actor_df = df2.groupby(by="acteur_name").sum()[['budget']].sort_values("budget", ascending=False)
-    df2.sort_values('year', ascending=True, inplace= True)
-    df2['connu'] = df2.apply(famour_or_not_famous, axis = 1)
-    df2['nbsucces'] = df2['connu']
-    new_df = df2
-    new_df['nbsuccess'] = df2.groupby(by  ='acteur_name')['connu'].cumsum(axis = 0)
-    new_df = new_df.sort_values('year', ascending=True)
-    new_df.drop(columns='nbsucces', inplace = True)
-    new_df['connu2'] = new_df['nbsuccess'].apply(lambda x : 1 if x >=1 else 0)
-    new_df.drop(columns="connu", inplace = True)
-    new_df.rename(columns={"connu2" : "connu"}, inplace=True)
-    new_df['totalsuccess'] = new_df.groupby(by = 'title').cumsum()['nbsuccess']
-    total_success = pd.DataFrame(new_df.groupby(['title'], sort = False)['totalsuccess'].max())
-    total_success.reset_index(inplace = True)
-    df = df.merge(right=total_success, on='title', how = "right")
-
-    return df
 
 def example():
     '''
