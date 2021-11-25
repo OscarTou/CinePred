@@ -12,9 +12,6 @@ def create_pipeline():
 
     budget_transformer = FunctionTransformer(convert_budget_column)
     genre_transformer = make_pipeline(GenreOHE())
-    prod_transformer = FunctionTransformer(prod_count_times)
-    writer_transformer = FunctionTransformer(writer_count_times)
-    director_transformer = FunctionTransformer(director_count_times)
 
     preproc_basic = make_column_transformer(
         (time_pipeline, ['year', 'duration']),

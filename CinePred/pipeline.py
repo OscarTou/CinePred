@@ -48,7 +48,7 @@ def create_pipeline():
 
     pipeline = make_pipeline(
         preproc_basic,
-        XGBRegressor(max_depth=10, n_estimators=100,
+        XGBRegressor(max_depth=5, n_estimators=100,
                      learning_rate=0.1))  # GradientBoostingRegressor
 
     return pipeline
@@ -69,6 +69,9 @@ def fit_and_score(pipeline, X, y):
         mae.append(mean_absolute_error(y_test, y_pred))
     print("MAE: ", mae[-1])
     return mae
+
+def cross(pipeline, X, y):
+    cv = cross_val_score(X, y, cv=TimeSeriesSplit(n_splits=5))
 
 
 def get_best_params(pipeline):
