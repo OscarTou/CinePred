@@ -1,28 +1,60 @@
 from sklearn.base import TransformerMixin, BaseEstimator
 
 class GenreOHE(BaseEstimator, TransformerMixin):
+    '''
+    Specific Transformer for Multiple Categories
+    Multiple One Hot Encoder
+    '''
+    def __init__(self, column_name='genre', format_separator=', '):
+        '''
+        init function for MOHE transformer
 
-    def __init__(self, column_name='genre'):
+        Parameters
+        ----------
+        column_name : str
+            name of the column to MOHE
+
+        format_separator : str
+            separator format for the split
+            default : ', '
+        '''
         self.column_name=column_name
-        self.list_unique_genre = None
+        self.format_separator = format_separator
+        self.list_unique_categories = None
 
     def fit(self, X, y=None):
-        # separate all genres into one list, considering comma + space as separators
-        genre = X[self.column_name].str.split(', ').tolist()
+        '''
+        fit function that create the list of unique categories
+
+        Parameters
+        ----------
+        X : input dataframe
+            imput of the column to fit
+        '''
+        # separate all categories into one list, considering comma + space as separators
+        categories = X[self.column_name].str.split(self.format_separator).tolist()
 
         # flatten the list
-        flat_genre = [item for sublist in genre for item in sublist]
+        flat_categories = [item for sublist in categories for item in sublist]
 
         # convert to a set to make unique
-        set_genre = set(flat_genre)
+        set_categories = set(flat_categories)
 
         # back to list
-        self.list_unique_genre = list(set_genre)
+        self.list_unique_categories = list(set_categories)
         return self
 
     def transform(self, X):
-        # create columns by each unique genre
-        data = X.reindex(X.columns.tolist() + self.list_unique_genre,
+        '''
+        transform function that create columns for each categories and OHE each rows
+
+        Parameters
+        ----------
+        X : input dataframe
+            imput of the column to transform
+        '''
+        # create columns by each unique categories
+        data = X.reindex(X.columns.tolist() + self.list_unique_categories,
                          axis=1,
                          fill_value=0)
 
