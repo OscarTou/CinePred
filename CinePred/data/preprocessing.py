@@ -23,7 +23,11 @@ def remove_na_rows(df):
     '''
     remove empy or NA rows
     '''
-    return df.dropna()
+    df = df.dropna()
+    df = df.reset_index()
+    df = df.drop(columns='index')
+    return df
+
 
 def convert_income(df):
     '''
@@ -76,13 +80,13 @@ def convert_in_usd(val, cur, df_currencies):
 
 def reduce_column_type(df, nb_max=5):
     # separate all types into list
-    types_list = df.iloc[:, 0].str.split(', ').tolist()
-    #return top 5 actors
-    df = [', '.join(types[:nb_max]) for types in types_list]
-    return pd.DataFrame(df)
+    df_copy = df.copy()
+    types_list = df_copy.iloc[:, 0].str.split(',')
+    df_copy = [', '.join(types[:nb_max]) for types in types_list]
+    return pd.DataFrame(df_copy)
 
 
-def convert_budget_column(df, path='raw_data/currencies.csv'):
+def convert_budget_column(df, path='../raw_data/currencies.csv'):
     '''
         convert budget column in USD value converted in int
     '''
@@ -105,15 +109,6 @@ def convert_budget_column(df, path='raw_data/currencies.csv'):
 def log_transformation(df):
     df = np.log(df)/np.log(10)
     return pd.DataFrame(df)
-
-def reset_index(df):
-    '''
-    reset index to clean dataframe
-    '''
-    df = df.reset_index()
-    df = df.drop(columns='index')
-
-    return df
 
 def preprocess_example(path='../raw_data/IMDb movies.csv'):
     print('----- import Data -----')
@@ -147,9 +142,6 @@ def preprocess_example(path='../raw_data/IMDb movies.csv'):
     print('----- convert to date -----')
     df['date_published'] = convert_to_date(df[['date_published']])
 
-    print('----- reset index -----')
-    df = reset_index(df)
-
     print('----- log transform -----')
     df['worlwide_gross_income'] = log_transformation(
         df[['worlwide_gross_income']])
@@ -157,25 +149,6 @@ def preprocess_example(path='../raw_data/IMDb movies.csv'):
     print('----- data_shape -----')
 
     return df
-
-def import_clean_df():
-    # IMPORT DF
-    data = Data('../raw_data/IMDb movies.csv')
-    data.import_data()
-
-    # CLEANING
-    data.keep_columns(columns_names=[
-        'imdb_title_id', 'title', 'year', 'date_published', 'genre',
-        'duration', 'country', 'director', 'writer', 'production_company',
-        'actors', 'budget', 'worlwide_gross_income'
-    ])
-    data.remove_na_rows()
-    data.convert_income(column_name='worlwide_gross_income')
-    data.convert_to_date(column_name='date_published')
-    data.dataframe.sort_values(by='date_published', inplace=True)
-    data.dataframe.reset_index(inplace=True)
-
-    return data
 
 if __name__ == "__main__":
     preprocess_example()
