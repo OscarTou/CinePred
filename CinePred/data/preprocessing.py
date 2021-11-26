@@ -127,7 +127,7 @@ def convert_budget_column(df):
         convert budget column in USD value converted in int
     '''
 
-    df_currencies = import_data('raw_data/currencies.csv')
+    df_currencies = import_data('../raw_data/currencies.csv')
     df_copy = df.copy()
     budget = df_copy.iloc[:, 0].str.split()
     df_copy['budget_cur'] = budget.apply(lambda x: x[0])
@@ -155,7 +155,7 @@ def reset_index(df):
 
     return df
 
-def preprocess_example(path='raw_data/IMDb movies.csv'):
+def preprocess_example(path='../raw_data/IMDb movies.csv'):
     print('----- import Data -----')
     df = import_data(path)
 
@@ -200,7 +200,7 @@ def preprocess_example(path='raw_data/IMDb movies.csv'):
 
 def import_clean_df():
     # IMPORT DF
-    data = Data('raw_data/IMDb movies.csv')
+    data = Data('../raw_data/IMDb movies.csv')
     data.import_data()
 
     # CLEANING
