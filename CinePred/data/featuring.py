@@ -3,7 +3,7 @@ import numpy as np
 
 from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import preprocess_example
-from cpi import *
+import cpi
 
 # --------------------------------------- #
 # -------        featuring        ------- #
@@ -103,10 +103,13 @@ def add_cum_budget_per_production_company(df):
     return pd.DataFrame(result)
 
 
-def add_inflation_budget(df, column_year, column_money):
-    df["year_2"] = df[column_year].apply(lambda x: 2018 if x > 2018 else x)
-    return df.apply(
-        lambda x: cpi.inflate(x[column_money], x["year_2"], axis=1))
+def add_inflation_budget(df, column):
+    df["year_2"] = df["year"].apply(lambda x: 2018 if x > 2018 else x)
+    new = column + "_inflated"
+    df[new] = df.apply(lambda x: cpi.inflate(x[column], x["year_2"]),
+                           axis=1)
+    return df
+
 
 def one_hot_encode(df, column_names):
     '''
@@ -245,9 +248,14 @@ def feature_example(df):
     df["cum_budget_prod"] = add_cum_budget_per_production_company(
         df[["production_company","budget"]])
 
-    # print('----- add_inflation_budget -----')
-    # df["inflation_budget"] = add_inflation_budget(df[["budget"]])
+    #print('----- add_inflation_budget -----')
+    #df["inflation_budget"] = add_inflation_budget(df[["budget"]])
 
+    print('----- add column inflated-----')
+    df = add_inflation_budget(df, "budget")
+
+    print('----- add income inflated-----')
+    df = add_inflation_budget(df, "worlwide_gross_income")
     # print('----- one_hot_encode -----')
     # df["production"] = one_hot_encode(df["production_company"])
 
@@ -265,7 +273,7 @@ def feature_example(df):
 
 if __name__ == "__main__":
     print("\n----  PREPROCESSING -----\n")
-    df = preprocess_example(path='../raw_data/IMDb movies.csv')
+    df = preprocess_example(path='raw_data/IMDb movies.csv')
 
     print("\n----  FEATURING -----\n")
     df = feature_example(df)
