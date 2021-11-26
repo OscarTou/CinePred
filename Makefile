@@ -53,3 +53,15 @@ pypi_test:
 
 pypi:
 	@twine upload dist/* -u $(PYPI_USERNAME)
+
+# ----------------------------------
+#          Streamlit server
+# ----------------------------------
+streamlit:
+	-@streamlit run CinePred/app.py
+
+# ----------------------------------
+#          Fast api
+# ----------------------------------
+run_api:
+	uvicorn api.fast:app --reload
