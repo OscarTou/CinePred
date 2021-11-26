@@ -26,6 +26,7 @@ def remove_na_rows(df):
     df = df.dropna()
     df = df.reset_index()
     df = df.drop(columns='index')
+    return df
 
 
 def convert_income(df):
@@ -148,25 +149,6 @@ def preprocess_example(path='../raw_data/IMDb movies.csv'):
     print('----- data_shape -----')
 
     return df
-
-def import_clean_df():
-    # IMPORT DF
-    data = Data('../raw_data/IMDb movies.csv')
-    data.import_data()
-
-    # CLEANING
-    data.keep_columns(columns_names=[
-        'imdb_title_id', 'title', 'year', 'date_published', 'genre',
-        'duration', 'country', 'director', 'writer', 'production_company',
-        'actors', 'budget', 'worlwide_gross_income'
-    ])
-    data.remove_na_rows()
-    data.convert_income(column_name='worlwide_gross_income')
-    data.convert_to_date(column_name='date_published')
-    data.dataframe.sort_values(by='date_published', inplace=True)
-    data.dataframe.reset_index(inplace=True)
-
-    return data
 
 if __name__ == "__main__":
     preprocess_example()
