@@ -40,8 +40,54 @@ def create_baseline_pipeline():
     return pipeline
 
 def cross_val(pipeline, X, y):
-    cv = cross_val_score(pipeline, X, y, cv=TimeSeriesSplit(n_splits=5))
-    print(cv)
+    cv = cross_val_score(pipeline, X, y, cv=TimeSeriesSplit(n_splits=5), scoring='neg_mean_absolute_error')
+    return cv[-1]
+
+
+# FIT & PREDICT
+def fit_and_score(pipeline, X, y):
+    """ Returns a list of 5 mae scores"""
+    mae = []
+    tscv = TimeSeriesSplit(n_splits=5)
+    for train_index, test_index in tscv.split(X):
+        print("TRAIN:", train_index, "TEST:", test_index)
+        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+        # Transform train&test
+        X_train_preproc = pipeline.fit_transform(X_train)
+        X_test_preproc = pipeline.transform(X_test)
+
+        # Split train into train/split (to get best_iteration):
+        X_train2_preproc = X_train_preproc[:-400]
+        X_val2_preproc = X_train_preproc[-400:]
+        y_train2_preproc = y_train[:-400]
+        y_val2_preproc = y_train[-400:]
+
+        model_xgb = XGBRegressor(max_depth=5,
+                                 n_estimators=1000,
+                                 learning_rate=0.1)
+        model_xgb.fit(X_train2_preproc,
+                      y_train2_preproc,
+                      verbose=False,
+                      eval_set=[(X_train2_preproc, y_train2_preproc),
+                                (X_val2_preproc, y_val2_preproc)],
+                      eval_metric=["mae"],
+                      early_stopping_rounds=5)
+
+        best_iter = model_xgb.best_iteration
+
+        # Re-fit our XGBr with best_iter
+        model = LinearRegression()
+        model.fit(X_train_preproc, y_train)
+
+        # Prediction
+        y_pred = model_xgb2.predict(X_test_preproc)
+
+        # Score
+        mae.append(mean_absolute_error(y_test, y_pred))
+    print("MAE: ", mae[-1])
+    return mae
 
 
 if __name__ == '__main__':
@@ -80,8 +126,4 @@ if __name__ == '__main__':
     # Pipeline and fit
     print("---- Pipeline Creation ----")
     pipeline = create_baseline_pipeline()
-    print("Pipeline created")
-    #pipeline.fit(X)
-    cross_validate(pipeline, X, y)
-    print("Cross val done")
-    #cross_val(pipeline, X, y)
+    print(cross_val(pipeline, X, y))

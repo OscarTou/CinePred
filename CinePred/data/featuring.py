@@ -118,7 +118,7 @@ def add_success_movies_per_actors(df):
     '''
     Function that count how many success movies an actor did in his timeline. Add weight in function of the times
     '''
-    df2 = pd.read_csv('../raw_data/cat_acteur.csv')
+    df2 = pd.read_csv('raw_data/cat_acteur.csv')
     df2['ratio'] = df2['income']/df2['budget']
     # df2_cat = df2.loc[(df2['ratio']>=5) & (df2['budget'] >= 100_000_000)]
     # len(df2_cat['acteur_name'].unique())

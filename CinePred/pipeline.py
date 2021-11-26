@@ -50,58 +50,69 @@ def create_pipeline():
 
 
     preproc_basic = make_column_transformer(
-        (time_pipeline, ['year', 'duration']),
-        (budget_transformer, ['budget']),
         (sin_transformer, ['date_published']),
         (cos_transformer, ['date_published']),
-        (genre_transformer, ['genre']),
-        (prod_transformer, ['production_company']),
-        (writer_transformer, ['writer']),
+        (budget_transformer, ['budget']),
         (director_transformer, ['director']),
-    )
+        (genre_transformer, ['genre']))
 
+
+    # without (sin_transformer, ['date_published']),
+    #  and    (cos_transformer, ['date_published']), # 0.745
+    # without: (time_pipeline, ['year', 'duration']), # 0.733 (!)
+    # 0.742
+    # with (prod_transformer, ['production_company']), # 0.736
+    # with (director_transformer, ['director']), # 0.732
+    # with (int_transformer, ['shifted']) # 0.742
+    # with (writer_transformer, ['writer'])) # 0.738
     return preproc_basic
 
 
 # FIT & PREDICT
 def fit_and_score(pipeline, X, y):
     """ Returns a list of 5 mae scores"""
+    print(X.columns)
     mae = []
     tscv = TimeSeriesSplit(n_splits=5)
     for train_index, test_index in tscv.split(X):
         print("TRAIN:", train_index, "TEST:", test_index)
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-        X_preproc = pipeline.fit_transform(X_train)
-        X_train_preproc = X_preproc[:-400]
-        X_val_preproc = X_preproc[-400:]
-        y_train_preproc = y_train[:-400]
-        y_val_preproc = y_train[-400:]
 
-        model_xgb = XGBRegressor(max_depth=5, n_estimators=100, learning_rate=0.1)
-        model_xgb.fit(X_train_preproc,
-                      y_train_preproc,
-                      eval_set=[(X_train_preproc, y_train_preproc),
-                                (X_val_preproc, y_val_preproc)],
+        # Transform train&test
+        X_train_preproc = pipeline.fit_transform(X_train)
+        X_test_preproc = pipeline.transform(X_test)
+
+        # Split train into train/split (to get best_iteration):
+        X_train2_preproc = X_train_preproc[:-400]
+        X_val2_preproc = X_train_preproc[-400:]
+        y_train2_preproc = y_train[:-400]
+        y_val2_preproc = y_train[-400:]
+
+        model_xgb = XGBRegressor(max_depth=5, n_estimators=1000, learning_rate=0.1)
+        model_xgb.fit(X_train2_preproc,
+                      y_train2_preproc,
+                      verbose=False,
+                      eval_set=[(X_train2_preproc, y_train2_preproc),
+                                (X_val2_preproc, y_val2_preproc)],
                       eval_metric=["mae"],
                       early_stopping_rounds=5)
 
         best_iter = model_xgb.best_iteration
-        model_xgb2 = XGBRegressor(max_depth=5,
-                                 n_estimators=100,
-                                 learning_rate=0.1)
-        print(best_iter)
-        model_xgb2.fit(X_preproc, y, n_iter=best_iter)
 
-        X_test_preproc = pipeline.fit_transform(X_test)
-        y_pred = model_xgb.predict(X_test_preproc)
+        # Re-fit our XGBr with best_iter
+        model_xgb2 = XGBRegressor(max_depth=5,
+                                  n_estimators=best_iter,
+                                  learning_rate=0.1)
+        model_xgb2.fit(X_train_preproc, y_train)
+
+        # Prediction
+        y_pred = model_xgb2.predict(X_test_preproc)
+
+        # Score
         mae.append(mean_absolute_error(y_test, y_pred))
     print("MAE: ", mae[-1])
     return mae
-
-def cross(pipeline, X, y):
-    cv = cross_val_score(X, y, cv=TimeSeriesSplit(n_splits=5))
-
 
 def get_best_params(pipeline):
     # Inspect all pipe components parameters to find the one you want to gridsearch
@@ -110,10 +121,9 @@ def get_best_params(pipeline):
         pipeline,
         param_grid={
             # Access any component of the pipeline, as far back as you want
-            'gradientboostingregressor__learning_rate': [0.001, 0.01,
-                                                         0.1], # 0.1
-            'gradientboostingregressor__n_estimators': [10, 100, 200, 500], # 200
-            'gradientboostingregressor__max_depth': [2, 3, 4] # 2
+            'gradientboostingregressor__learning_rate': [0.001, 0.01, 0.1],
+            'gradientboostingregressor__n_estimators': [10, 100, 200, 500],
+            'gradientboostingregressor__max_depth': [2, 3, 4]
         },
         cv=TimeSeriesSplit(n_splits=5),
         scoring="neg_mean_absolute_error")
@@ -125,9 +135,10 @@ def get_best_params(pipeline):
 if __name__=='__main__':
     # DECLARE X & Y
     df = import_clean_df()
+    df = add_success_movies_per_actors(df)
     X = df[[
         'budget', 'genre', 'duration', 'year', 'date_published',
-        'production_company', 'writer', 'director'
+        'production_company', 'writer', 'director', 'shifted'
     ]]
     y = df['worlwide_gross_income']
     y = np.log(y) / np.log(10)
