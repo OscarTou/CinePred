@@ -1,3 +1,4 @@
+from numpy.lib.shape_base import column_stack
 import pandas as pd
 import numpy as np
 
@@ -151,8 +152,28 @@ def add_success_movies_per_actors(df):
     new_df['totalsuccess'] = new_df.groupby(by = 'title').cumsum()['shifted']
     total_success = pd.DataFrame(new_df.groupby(['title'], sort = False)['shifted'].max())
     total_success.reset_index(inplace = True)
-    df = df.merge(right=total_success, on='title', how = "right")
-    return df
+    df.merge(right=total_success, on='title', how = "right")
+
+
+def Add_Ones(df):
+    df['Ones'] = 1
+
+def Remove_Ones(df):
+    df.drop(columns = "Ones", inplace = True)
+
+def Add_number_of_movies_per_prod_company_in_Timeline(df):
+    df['Nb_actuals_movie_directors_company'] = df.groupby(by = "production_company").cumsum()['Ones']
+
+
+def Add_number_of_movies_per_directors_in_Timeline(df):
+    df['Nb_actuals_movie_directors'] = df.groupby(by = "director").cumsum()['Ones']
+
+
+def Add_number_of_movies_per_writer_in_Timeline(df):
+    df['Nb_actuals_movie_directors_writer'] = df.groupby(by = "writer").cumsum()['Ones']
+
+
+
 
 def example():
 
