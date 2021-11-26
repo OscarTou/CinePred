@@ -1,4 +1,5 @@
 from CinePred.params import *
+from CinePred.data.importing import *
 
 
 def create_baseline_pipeline():
@@ -25,6 +26,9 @@ def create_baseline_pipeline():
 
     return pipeline
 
+def cross_val(pipeline, X, y):
+    cv = cross_val_score(pipeline, X, y, cv=TimeSeriesSplit(n_splits=5))
+    print(cv)
 
 
 if __name__ == '__main__':
@@ -46,6 +50,7 @@ if __name__ == '__main__':
     df['date_published'] = convert_to_date(df[['date_published']])
     df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
     df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
+    df.sort_values(by='date_published', inplace=True)
     df = reset_index(df)
 
     # X and Y Creation
@@ -62,4 +67,8 @@ if __name__ == '__main__':
     # Pipeline and fit
     print("---- Pipeline Creation ----")
     pipeline = create_baseline_pipeline()
-    mae = fit_and_score(pipeline, X, y)
+    print("Pipeline created")
+    pipeline.fit(X)
+    #cross_validate(pipeline, X, y)
+    print("Cross val done")
+    #cross_val(pipeline, X, y)

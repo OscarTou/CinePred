@@ -57,7 +57,6 @@ def fit_and_score(pipeline, X, y):
         print("TRAIN:", train_index, "TEST:", test_index)
         X_train, X_test = X.iloc[train_index], X.iloc[test_index]
         y_train, y_test = y.iloc[train_index], y.iloc[test_index]
-
         X_preproc = pipeline.fit_transform(X_train)
         X_train_preproc = X_preproc[:-400]
         X_val_preproc = X_preproc[-400:]
