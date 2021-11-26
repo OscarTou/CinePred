@@ -46,10 +46,11 @@ def preproc(df):
     return df
 
 def get_mae(df):
-    X = df.drop(columns='worlwide_gross_income')
+    X = df.drop(columns=['worlwide_gross_income'])
     y = df['worlwide_gross_income']
-    return cross_val_score(XGBRegressor(), X, y,
-                         scoring='neg_mean_absolute_error', cv=5)
+    model = XGBRegressor()
+    return cross_val_score(model, X, y, cv=5)
+
 
 if __name__ == '__main__':
     # DECLARE X & Y
@@ -64,8 +65,8 @@ if __name__ == '__main__':
     df.drop(columns='index', inplace=True)
 
     mid = int(df.shape[0] / 2)
-    df1 = df.iloc[:mid]
-    df2 = df.iloc[mid:]
+    df1 = df.iloc[:mid].copy()
+    df2 = df.iloc[mid:].copy()
 
     print(get_mae(df1))
     print(get_mae(df2))
