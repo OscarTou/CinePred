@@ -1,6 +1,19 @@
-from CinePred.params import *
 from CinePred.data.importing import *
+from CinePred.data.preprocessing import *
+from CinePred.data.featuring import *
+from CinePred.data.transformers import *
+from CinePred.pipeline import *
 
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, cross_validate, cross_val_score
+from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.pipeline import make_pipeline
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import FunctionTransformer, RobustScaler, OneHotEncoder
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
+
+from currency_converter import CurrencyConverter
+from xgboost import XGBRegressor
 
 def create_baseline_pipeline():
 
@@ -68,7 +81,7 @@ if __name__ == '__main__':
     print("---- Pipeline Creation ----")
     pipeline = create_baseline_pipeline()
     print("Pipeline created")
-    pipeline.fit(X)
-    #cross_validate(pipeline, X, y)
+    #pipeline.fit(X)
+    cross_validate(pipeline, X, y)
     print("Cross val done")
     #cross_val(pipeline, X, y)

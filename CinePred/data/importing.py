@@ -12,9 +12,10 @@ def import_data(link):
     link : str
         path of the CSV file
     '''
-    return pd.read_csv(link, low_memory=False)
+    print(link)
+    return pd.read_csv(link)
 
 
 if __name__ == "__main__":
     print('----- import Data -----')
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data('../raw_data/IMDb movies.csv')

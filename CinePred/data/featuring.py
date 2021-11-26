@@ -1,4 +1,9 @@
-from CinePred.params import *
+import numpy as np
+import pandas as pd
+import cpi
+from CinePred.data.importing import *
+from CinePred.data.preprocessing import *
+from CinePred.data.transformers import *
 
 # --------------------------------------- #
 # -------        featuring        ------- #
@@ -103,20 +108,6 @@ def add_inflation_budget(df, column_year, column_money):
     return df.apply(
         lambda x: cpi.inflate(x[column_money], x["year_2"], axis=1))
 
-def one_hot_encode(df, column_names):
-    '''
-    for cell with multiple categories, one hot encode a list of column, for each categories
-    for cell with multiple categories, one hot encode for each column, each categories
-
-    Parameters
-    ----------
-    columns_name : array str
-        name list of the columns to encode
-    '''
-
-    for column_name in column_names:
-        df = one_hot_encode_multiple(df, column_name)
-    return df
 
 def famour_or_not_famous(df):
     if (df['budget'] >= 100_000_000) & (df['ratio'] >= 3):
@@ -128,31 +119,31 @@ def add_success_movies_per_actors(df):
     Function that count how many success movies an actor did in his timeline. Add weight in function of the times
     '''
     df2 = pd.read_csv('../raw_data/cat_acteur.csv')
-    df2['ratio'] = df2['income'] / df2['budget']
-    # acteurs_df_cat = df2.loc[(df2['ratio']>=5) & (df2['budget'] >= 100_000_000)]
+    df2['ratio'] = df2['income']/df2['budget']
+    # df2_cat = df2.loc[(df2['ratio']>=5) & (df2['budget'] >= 100_000_000)]
+    # len(df2_cat['acteur_name'].unique())
+    # df2_cat[['acteur_name','budget']].groupby(by='acteur_name').sum().sort_values(by="budget", ascending=False).head(159)
     # top_tier_actor_df = df2.groupby(by="acteur_name").sum()[['budget']].sort_values("budget", ascending=False)
-    df2.sort_values('year', ascending=True, inplace=True)
-    df2['connu'] = df2.apply(famour_or_not_famous, axis=1)
+    df2.sort_values('year', ascending=True, inplace= True)
+    df2['connu'] = df2.apply(famour_or_not_famous, axis = 1)
     df2['nbsucces'] = df2['connu']
     new_df = df2
-    new_df['nbsuccess'] = df2.groupby(by='acteur_name')['connu'].cumsum(axis=0)
+    new_df['nbsuccess'] = df2.groupby(by  ='acteur_name')['connu'].cumsum(axis = 0)
     new_df = new_df.sort_values('year', ascending=True)
-    new_df.drop(columns='nbsucces', inplace=True)
-    new_df['connu2'] = new_df['nbsuccess'].apply(lambda x: 1 if x >= 1 else 0)
-    new_df.drop(columns="connu", inplace=True)
-    new_df.rename(columns={"connu2": "connu"}, inplace=True)
-    new_df['totalsuccess'] = new_df.groupby(by='title').cumsum()['nbsuccess']
-    total_success = pd.DataFrame(
-        new_df.groupby(['title'], sort=False)['totalsuccess'].max())
-    total_success.reset_index(inplace=True)
-    df = df.merge(right=total_success, on='title', how="right")
-
+    new_df.drop(columns='nbsucces', inplace = True)
+    new_df['connu2'] = new_df['nbsuccess'].apply(lambda x : 1 if x >=1 else 0)
+    new_df.drop(columns="connu", inplace = True)
+    new_df.rename(columns={"connu2" : "connu"}, inplace=True)
+    new_df['totalsuccess'] = new_df.groupby(by = 'title').cumsum()['shifted']
+    total_success = pd.DataFrame(new_df.groupby(['title'], sort = False)['shifted'].max())
+    total_success.reset_index(inplace = True)
+    df = df.merge(right=total_success, on='title', how = "right")
     return df
 
 def example():
 
     print('----- import Data -----')
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data('../raw_data/IMDb movies.csv')
 
     print('----- keep columns -----')
     df = keep_columns(df,
@@ -172,15 +163,11 @@ def example():
                                min_rows=45,
                                out_currency='USD')
 
-    print('----- filter categories -----')
-    df = filter_categories(df, "actors", nb=2)
-
     print('----- convert income column -----')
     df = convert_income(df, column_name='worlwide_gross_income')
 
-    print('----- one hot encode -----')
+    #print('----- one hot encode -----')
     #df = one_hot_encode(df, column_names=['director','genre'])
-    df = one_hot_encode(df, column_names=['genre'])
     #df = one_hot_encode(df, column_names=['director'])
 
     print('----- convert to int -----')
@@ -262,7 +249,7 @@ def feature_example(df):
 
 if __name__ == "__main__":
     print("\n----  PREPROCESSING -----\n")
-    df = preprocess_example(path='raw_data/IMDb movies.csv')
+    df = preprocess_example(path='../raw_data/IMDb movies.csv')
 
     print("\n----  FEATURING -----\n")
     df = feature_example(df)
