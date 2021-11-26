@@ -76,10 +76,10 @@ def convert_in_usd(val, cur, df_currencies):
 
 def reduce_column_type(df, nb_max=5):
     # separate all types into list
-    types_list = df.iloc[:, 0].str.split(', ').tolist()
-    #return top 5 actors
-    df = [', '.join(types[:nb_max]) for types in types_list]
-    return pd.DataFrame(df)
+    df_copy = df.copy()
+    types_list = df_copy.iloc[:, 0].str.split(',')
+    df_copy = [', '.join(types[:nb_max]) for types in types_list]
+    return pd.DataFrame(df_copy)
 
 
 def convert_budget_column(df, path='raw_data/currencies.csv'):
