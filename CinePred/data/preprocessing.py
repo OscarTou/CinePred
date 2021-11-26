@@ -23,7 +23,10 @@ def remove_na_rows(df):
     '''
     remove empy or NA rows
     '''
-    return df.dropna()
+    df = df.dropna()
+    df = df.reset_index()
+    df = df.drop(columns='index')
+
 
 def convert_income(df):
     '''
@@ -106,15 +109,6 @@ def log_transformation(df):
     df = np.log(df)/np.log(10)
     return pd.DataFrame(df)
 
-def reset_index(df):
-    '''
-    reset index to clean dataframe
-    '''
-    df = df.reset_index()
-    df = df.drop(columns='index')
-
-    return df
-
 def preprocess_example(path='../raw_data/IMDb movies.csv'):
     print('----- import Data -----')
     df = import_data(path)
@@ -146,9 +140,6 @@ def preprocess_example(path='../raw_data/IMDb movies.csv'):
 
     print('----- convert to date -----')
     df['date_published'] = convert_to_date(df[['date_published']])
-
-    print('----- reset index -----')
-    df = reset_index(df)
 
     print('----- log transform -----')
     df['worlwide_gross_income'] = log_transformation(
