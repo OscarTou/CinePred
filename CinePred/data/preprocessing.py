@@ -82,7 +82,7 @@ def reduce_column_type(df, nb_max=5):
     return pd.DataFrame(df)
 
 
-def convert_budget_column(df, path='raw_data/currencies.csv'):
+def convert_budget_column(df, path='../raw_data/currencies.csv'):
     '''
         convert budget column in USD value converted in int
     '''
