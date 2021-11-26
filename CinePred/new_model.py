@@ -47,7 +47,7 @@ def preproc(df):
 
 def get_mae(df):
     X = df.drop(columns='worlwide_gross_income')
-    y = ['worlwide_gross_income']
+    y = df['worlwide_gross_income']
     return cross_val_score(XGBRegressor(), X, y,
                          scoring='neg_mean_absolute_error', cv=5)
 
