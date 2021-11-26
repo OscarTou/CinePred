@@ -181,7 +181,7 @@ def Add_number_of_movies_per_writer_in_Timeline(df):
 def example():
 
     print('----- import Data -----')
-    df = import_data('../raw_data/IMDb movies.csv')
+    df = import_data('raw_data/IMDb movies.csv')
 
     print('----- keep columns -----')
     df = keep_columns(df,
