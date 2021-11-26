@@ -3,22 +3,21 @@ from CinePred.params import *
 
 def import_clean_df():
     # IMPORT DF
-    data = Data('raw_data/IMDb movies.csv')
-    data.import_data()
+    df = import_data('raw_data/IMDb movies.csv')
 
     # CLEANING
-    data.keep_columns(columns_names=[
+    df = keep_columns(df,column_names=[
         'imdb_title_id', 'title', 'year', 'date_published', 'genre',
         'duration', 'country', 'director', 'writer', 'production_company',
         'actors', 'budget', 'worlwide_gross_income'
     ])
-    data.remove_na_rows()
-    data.convert_income(column_name='worlwide_gross_income')
-    data.convert_to_date(column_name='date_published')
-    data.dataframe.sort_values(by='date_published', inplace=True)
-    data.dataframe.reset_index(inplace=True)
+    df = remove_na_rows(df)
+    df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
+    df['date_published'] = convert_to_date(df[['date_published']])
+    df = df.sort_values(by='date_published')
+    df = df.reset_index()
 
-    return data
+    return df
 
 
 def create_pipeline():
@@ -111,12 +110,12 @@ def get_best_params(pipeline):
 
 if __name__=='__main__':
     # DECLARE X & Y
-    data = import_clean_df()
-    X = data.dataframe[[
+    df = import_clean_df()
+    X = df[[
         'budget', 'genre', 'duration', 'year', 'date_published',
         'production_company', 'writer', 'director'
     ]]
-    y = data.dataframe['worlwide_gross_income']
+    y = df['worlwide_gross_income']
     y = np.log(y) / np.log(10)
 
     pipeline = create_pipeline()

@@ -11,8 +11,12 @@ from sklearn.compose import make_column_transformer
 from sklearn.preprocessing import FunctionTransformer, RobustScaler, OneHotEncoder
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.base import TransformerMixin, BaseEstimator
 
+from CinePred.data.preprocessing import *
+from CinePred.data.featuring import *
+from CinePred.data.importing import *
+from CinePred.data.transformers import *
+from CinePred.pipeline import fit_and_score
 
-from CinePred.data.utils import *
-from CinePred.data.data import Data
-from CinePred.data.genre_ohe import GenreOHE
+from cpi import *

@@ -1,24 +1,25 @@
 from CinePred.params import *
-from CinePred.pipeline import import_clean_df, fit_and_score
 
 
-def create_pipeline():
+def create_baseline_pipeline():
+
     # PIPELINE
-    sin_transformer = FunctionTransformer(add_sin_features)
-    cos_transformer = FunctionTransformer(add_cos_features)
+    budget_transformer = FunctionTransformer(convert_budget_column)
 
     int_transformer = FunctionTransformer(convert_to_int)
     time_pipeline = make_pipeline(int_transformer, RobustScaler())
 
-    budget_transformer = FunctionTransformer(convert_budget_column)
     genre_transformer = make_pipeline(GenreOHE())
+    sin_transformer = FunctionTransformer(add_sin_features)
+    cos_transformer = FunctionTransformer(add_cos_features)
 
     preproc_basic = make_column_transformer(
         (time_pipeline, ['year', 'duration']),
         (budget_transformer, ['budget']),
         (sin_transformer, ['date_published']),
         (cos_transformer, ['date_published']),
-        (genre_transformer, ['genre']))
+        (genre_transformer, ['genre'])
+        )
 
     pipeline = make_pipeline(preproc_basic, LinearRegression())
 
@@ -27,13 +28,38 @@ def create_pipeline():
 
 
 if __name__ == '__main__':
-    # DECLARE X & Y
-    data = import_clean_df()
-    X = data.dataframe[[
-        'budget', 'genre', 'duration', 'year', 'date_published',
-    ]]
-    y = data.dataframe['worlwide_gross_income']
-    y = np.log(y) / np.log(10)
 
-    pipeline = create_pipeline()
+    # Init DataFrame
+    print("---- Init Data ----")
+    df = import_data('raw_data/IMDb movies.csv')
+    df = keep_columns(df,column_names=[
+        'budget',
+        'duration',
+        'genre',
+        'year',
+        'date_published',
+        'worlwide_gross_income'])
+
+    # Cleaning DataFrame
+    print("---- Cleaning Data ----")
+    df = remove_na_rows(df)
+    df['date_published'] = convert_to_date(df[['date_published']])
+    df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
+    df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
+    df = reset_index(df)
+
+    # X and Y Creation
+    print("---- X and Y Creation ----")
+    X = df[[
+        'budget',
+        'duration',
+        'genre',
+        'year',
+        'date_published',
+    ]]
+    y = df['worlwide_gross_income']
+
+    # Pipeline and fit
+    print("---- Pipeline Creation ----")
+    pipeline = create_baseline_pipeline()
     mae = fit_and_score(pipeline, X, y)
