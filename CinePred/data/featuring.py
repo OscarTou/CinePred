@@ -229,8 +229,6 @@ def example():
     print('----- categorize writer -----')
     df = add_writer_category(df, "production_company", "production_weight")
 
-    print('----- reset index -----')
-    df = reset_index(df)
 
     print('----- data_shape -----')
     print(df.shape)

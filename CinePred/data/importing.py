@@ -12,8 +12,7 @@ def import_data(link):
     link : str
         path of the CSV file
     '''
-
-    return pd.read_csv(link)
+    return pd.read_csv(link, low_memory=False)
 
 
 if __name__ == "__main__":
