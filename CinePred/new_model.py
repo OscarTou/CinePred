@@ -68,4 +68,4 @@ if __name__ == '__main__':
     df2 = df.iloc[mid:]
 
     print(get_mae(df1))
-    prin(get_mae(df2))
+    print(get_mae(df2))
