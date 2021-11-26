@@ -56,7 +56,6 @@ if __name__ == '__main__':
     print("---- Cleaning Data ----")
     df = remove_na_rows(df)
     df['date_published'] = convert_to_date(df[['date_published']])
-
     df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
     df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
     df = reset_index(df)

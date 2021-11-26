@@ -110,7 +110,7 @@ def log_transformation(df):
     df = np.log(df)/np.log(10)
     return pd.DataFrame(df)
 
-def preprocess_example(path='../raw_data/IMDb movies.csv'):
+def preprocess_example(path='raw_data/IMDb movies.csv'):
     print('----- import Data -----')
     df = import_data(path)
 
