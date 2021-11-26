@@ -64,4 +64,4 @@ streamlit:
 #          Fast api
 # ----------------------------------
 run_api:
-	uvicorn api.fast:app --reload
+	uvicorn CinePred.api.fast:app --reload
