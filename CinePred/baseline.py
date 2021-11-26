@@ -1,6 +1,19 @@
-from CinePred.params import *
+from CinePred.data.importing import *
+from CinePred.data.preprocessing import *
+from CinePred.data.featuring import *
+from CinePred.data.transformers import *
+from CinePred.pipeline import *
 
-from CinePred.pipeline import fit_and_score
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, cross_validate
+from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.pipeline import make_pipeline
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import FunctionTransformer, RobustScaler, OneHotEncoder
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
+
+from currency_converter import CurrencyConverter
+from xgboost import XGBRegressor
 
 
 def create_pipeline():
@@ -13,11 +26,6 @@ def create_pipeline():
 
     sin_transformer = FunctionTransformer(add_sin_features)
     cos_transformer = FunctionTransformer(add_cos_features)
-
-    # genre_transformer = make_pipeline(GenreOHE())
-    # prod_transformer = FunctionTransformer(prod_count_times)
-    # writer_transformer = FunctionTransformer(writer_count_times)
-    # director_transformer = FunctionTransformer(director_count_times)
 
     preproc_basic = make_column_transformer(
         (time_pipeline, ['year', 'duration']),

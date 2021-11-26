@@ -1,9 +1,7 @@
+from CinePred.data.importing import import_data
 import pandas as pd
 import numpy as np
 
-from currency_converter import CurrencyConverter
-
-from CinePred.data.importing import import_data
 # --------------------------------------- #
 # -------       preprocess        ------- #
 # --------------------------------------- #
@@ -26,45 +24,6 @@ def remove_na_rows(df):
     remove empy or NA rows
     '''
     return df.dropna()
-
-def convert_budget_column(df,
-                          column_name='budget',
-                          out_currency='USD',
-                          min_rows=45):
-    '''
-    convert budget column in USD value converted in int
-
-    Parameters
-    ----------
-    columns_name : str , default 'budget'
-        name of the budget column
-
-    out_currency : str , default 'USD'
-        the output of the currency conversion
-
-    min_rows : int , default 45
-        drop lines if number of line with this currency is under min_rows
-    '''
-
-    # supprime les espaces à la fin et au début
-    df[column_name] = df[column_name].str.strip()
-
-    # split la string en mots
-    df[column_name] = df[column_name].str.split()
-
-    # split in two columns
-    df['currency'] = df[column_name].apply(lambda x: x[0])
-    df[column_name] = df[column_name].apply(lambda x: x[1]).astype('int64')
-
-    # select only rows with more than min_rows
-    df = df.groupby('currency').filter(lambda x: len(x) > min_rows)
-
-    c = CurrencyConverter()
-    df[column_name] = df[[column_name,'currency']]\
-        .apply(lambda x: convert(x[column_name], x['currency'], 'USD', converter = c), axis=1)
-    df = df.drop(columns='currency')
-
-    return df
 
 def convert_income(df):
     '''
