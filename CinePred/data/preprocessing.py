@@ -141,9 +141,6 @@ def preprocess_example(path='../raw_data/IMDb movies.csv'):
     print('----- convert to date -----')
     df['date_published'] = convert_to_date(df[['date_published']])
 
-    print('----- reset index -----')
-    df = reset_index(df)
-
     print('----- log transform -----')
     df['worlwide_gross_income'] = log_transformation(
         df[['worlwide_gross_income']])
