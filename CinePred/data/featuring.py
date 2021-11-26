@@ -178,7 +178,7 @@ def Add_number_of_movies_per_writer_in_Timeline(df):
 def example():
 
     print('----- import Data -----')
-    df = import_data('../raw_data/IMDb movies.csv')
+    df = import_data('raw_data/IMDb movies.csv')
 
     print('----- keep columns -----')
     df = keep_columns(df,
@@ -286,7 +286,7 @@ def feature_example(df):
 
 if __name__ == "__main__":
     print("\n----  PREPROCESSING -----\n")
-    df = preprocess_example(path='../raw_data/IMDb movies.csv')
+    df = preprocess_example(path='raw_data/IMDb movies.csv')
 
     print("\n----  FEATURING -----\n")
     df = feature_example(df)
