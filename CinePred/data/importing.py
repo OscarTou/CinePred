@@ -12,7 +12,6 @@ def import_data(link):
     link : str
         path of the CSV file
     '''
-    print(link)
     return pd.read_csv(link, low_memory=False)
 
 
