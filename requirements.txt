@@ -31,3 +31,5 @@ termcolor
 #specific
 currencyconverter
 cpi
+
+xgboost
