@@ -34,6 +34,7 @@ def create_pipeline():
     writer_transformer = FunctionTransformer(writer_count_times)
     director_transformer = FunctionTransformer(director_count_times)
 
+
     preproc_basic = make_column_transformer(
         (time_pipeline, ['year', 'duration']),
         (budget_transformer, ['budget']),
