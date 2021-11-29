@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from CinePred.data.importing import import_data
-from CinePred.data.preprocessing import preprocess_example
+from CinePred.data.preprocessing import *
 import cpi
 cpi.update()
 
