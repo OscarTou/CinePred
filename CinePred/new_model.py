@@ -19,7 +19,8 @@ def preproc(df):
     df = keep_columns(df,
                       column_names=[
                           'year', 'date_published', 'genre', 'duration',
-                          'budget', 'worlwide_gross_income'
+                          'budget', 'worlwide_gross_income',
+                          'production_company', 'director', 'writer'
                       ])
     df = remove_na_rows(df)
 
@@ -42,17 +43,27 @@ def preproc(df):
 
     # budget
     df['budget'] = convert_budget_column(df[['budget']])
+    df = df[df['budget'] != 0]
+    df = add_inflation(df, 'budget')
     df['budget'] = log_transformation(df[['budget']])
 
     # income
     df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
-    df['worlwide_gross_income'] = log_transformation(
-        df[['worlwide_gross_income']])
+    #df = add_inflation(df, 'worlwide_gross_income')
+    df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
+
+    # Cumsum
+    df = Add_Ones(df)
+    df = Add_number_of_movies_per_prod_company_in_Timeline(df)
+    df = Add_number_of_movies_per_directors_in_Timeline(df)
+    df = Add_number_of_movies_per_writer_in_Timeline(df)
+    df = Remove_Ones(df)
 
     # sort & index:
     df.sort_values('budget', inplace=True)
     df.reset_index(inplace=True)
-    df.drop(columns='index', inplace=True)
+    df.drop(columns=['index', 'production_company', 'director', 'writer'],
+            inplace=True)
 
     return df
 
@@ -93,8 +104,18 @@ def predict(df):
 
     score1 = np.mean(np.abs(get_mae(df1))) # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 200}
     score2 = np.mean(np.abs(get_mae(df2))) # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
-    #return [score1, score2]
     return [round(score1, 2), round(score2, 2)]
+
+def predict2(df):
+    '''
+        Input: a preprocessed df
+        Output: 2 scores MAE scores '''
+
+
+    score1 = np.abs(get_mae(df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 200}
+    print(score1)
+    return(np.mean(round(score1, 2)))
+
 
 if __name__ == '__main__':
     # Import
@@ -105,3 +126,5 @@ if __name__ == '__main__':
 
     # Predict
     print(predict(df))
+
+    print(predict2(df))

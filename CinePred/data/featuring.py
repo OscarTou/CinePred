@@ -5,6 +5,7 @@ import numpy as np
 from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import preprocess_example
 import cpi
+cpi.update()
 
 # --------------------------------------- #
 # -------        featuring        ------- #
@@ -104,13 +105,12 @@ def add_cum_budget_per_production_company(df):
     return pd.DataFrame(result)
 
 
-def add_inflation_budget(df, column):
+def add_inflation(df, column):
     df["year_2"] = df["year"].apply(lambda x: 2018 if x > 2018 else x)
-    new = column + "_inflated"
-    df[new] = df.apply(lambda x: cpi.inflate(x[column], x["year_2"]),
-                           axis=1)
+    df[column] = df.apply(lambda x: cpi.inflate(x[column], x["year_2"]),
+                          axis=1)
+    df.drop(columns='year_2', inplace=True)
     return df
-
 
 def one_hot_encode(df, column_names):
     '''
@@ -160,20 +160,25 @@ def add_success_movies_per_actors(df):
 
 def Add_Ones(df):
     df['Ones'] = 1
+    return df
 
 def Remove_Ones(df):
     df.drop(columns = "Ones", inplace = True)
+    return df
 
 def Add_number_of_movies_per_prod_company_in_Timeline(df):
     df['Nb_actuals_movie_directors_company'] = df.groupby(by = "production_company").cumsum()['Ones']
+    return df
 
 
 def Add_number_of_movies_per_directors_in_Timeline(df):
     df['Nb_actuals_movie_directors'] = df.groupby(by = "director").cumsum()['Ones']
+    return df
 
 
 def Add_number_of_movies_per_writer_in_Timeline(df):
     df['Nb_actuals_movie_directors_writer'] = df.groupby(by = "writer").cumsum()['Ones']
+    return df
 
 
 
@@ -273,10 +278,10 @@ def feature_example(df):
     #df["inflation_budget"] = add_inflation_budget(df[["budget"]])
 
     print('----- add column inflated-----')
-    df = add_inflation_budget(df, "budget")
+    df = add_inflation(df, "budget")
 
     print('----- add income inflated-----')
-    df = add_inflation_budget(df, "worlwide_gross_income")
+    df = add_inflation(df, "worlwide_gross_income")
     # print('----- one_hot_encode -----')
     # df["production"] = one_hot_encode(df["production_company"])
 
