@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # Init DataFrame
     print("---- Init Data ----")
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data(path = 'raw_data/IMDb movies.csv')
     df = keep_columns(df,column_names=[
         'budget',
         'duration',
