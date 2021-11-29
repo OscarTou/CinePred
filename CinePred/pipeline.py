@@ -15,9 +15,9 @@ from currency_converter import CurrencyConverter
 from xgboost import XGBRegressor
 
 
-def import_clean_df():
+def import_clean_df(path = "raw_data/IMDb movies.csv"):
     # IMPORT DF
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data(path)
 
     # CLEANING
     df = keep_columns(df,column_names=[

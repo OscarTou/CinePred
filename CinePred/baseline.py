@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     # Init DataFrame
     print("---- Init Data ----")
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data(path = 'raw_data/IMDb movies.csv')
     df = keep_columns(df,column_names=[
         'budget',
         'duration',
@@ -56,10 +56,8 @@ if __name__ == '__main__':
     print("---- Cleaning Data ----")
     df = remove_na_rows(df)
     df['date_published'] = convert_to_date(df[['date_published']])
-
     df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
     df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
-    df = reset_index(df)
 
     # X and Y Creation
     print("---- X and Y Creation ----")

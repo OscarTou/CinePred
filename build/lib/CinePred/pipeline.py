@@ -1,39 +1,37 @@
-# IMPORT
-import numpy as np
+from CinePred.data.importing import *
+from CinePred.data.preprocessing import *
+from CinePred.data.featuring import *
+from CinePred.data.transformers import *
 
-from sklearn.model_selection import TimeSeriesSplit
-from sklearn.metrics import mean_absolute_error
-
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.preprocessing import RobustScaler, OneHotEncoder
-
-from currency_converter import CurrencyConverter
-from CinePred.data.utils import convert_budget_column, convert_to_int, \
-    add_sin_features, add_cos_features
-from CinePred.data.data import Data
-from CinePred.data.genre_ohe import GenreOHE
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, cross_validate
+from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.pipeline import make_pipeline
 from sklearn.compose import make_column_transformer
-from sklearn.preprocessing import FunctionTransformer
-from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import FunctionTransformer, RobustScaler, OneHotEncoder
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
+
+from currency_converter import CurrencyConverter
+from xgboost import XGBRegressor
 
 
-
-def import_clean_df():
+def import_clean_df(path = "raw_data/IMDb movies.csv"):
     # IMPORT DF
-    data = Data('raw_data/IMDb movies.csv')
-    data.import_data()
-    print(type(data))
-    print()
+    df = import_data(path)
 
     # CLEANING
-    data.remove_na_rows()
-    data.convert_income(column_name='worlwide_gross_income')
-    data.convert_to_date(column_name='date_published')
-    data.dataframe.sort_values(by='date_published', inplace=True)
-    data.dataframe.reset_index(inplace=True)
+    df = keep_columns(df,column_names=[
+        'imdb_title_id', 'title', 'year', 'date_published', 'genre',
+        'duration', 'country', 'director', 'writer', 'production_company',
+        'actors', 'budget', 'worlwide_gross_income'
+    ])
+    df = remove_na_rows(df)
+    df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
+    df['date_published'] = convert_to_date(df[['date_published']])
+    df = df.sort_values(by='date_published')
+    df = df.reset_index()
 
-    return data
+    return df
 
 
 def create_pipeline():
@@ -46,23 +44,32 @@ def create_pipeline():
 
     budget_transformer = FunctionTransformer(convert_budget_column)
     genre_transformer = make_pipeline(GenreOHE())
-    comp_transformer = FunctionTransformer(
-        lambda x:  # ma fonction qui recoit une serie
-        x.apply(lambda y: x))
+    prod_transformer = FunctionTransformer(prod_count_times)
+    writer_transformer = FunctionTransformer(writer_count_times)
+    director_transformer = FunctionTransformer(director_count_times)
+
 
     preproc_basic = make_column_transformer(
-        (time_pipeline, ['year', 'duration']), (budget_transformer, ['budget']),
+        (time_pipeline, ['year', 'duration']),
+        (budget_transformer, ['budget']),
         (sin_transformer, ['date_published']),
-        (cos_transformer, ['date_published']), (genre_transformer, ['genre']),
-        (comp_transformer, ['production_company']))
+        (cos_transformer, ['date_published']),
+        (genre_transformer, ['genre']),
+        (prod_transformer, ['production_company']),
+        (writer_transformer, ['writer']),
+        (director_transformer, ['director']),
+    )
 
-    pipeline = make_pipeline(preproc_basic, GradientBoostingRegressor())
+    pipeline = make_pipeline(
+        preproc_basic,
+        XGBRegressor(max_depth=10, n_estimators=100,
+                     learning_rate=0.1))  # GradientBoostingRegressor
 
     return pipeline
 
 
 # FIT & PREDICT
-def baseline(pipeline, X, y):
+def fit_and_score(pipeline, X, y):
     """ Returns a list of 5 mae scores"""
     mae = []
     tscv = TimeSeriesSplit(n_splits=5)
@@ -74,6 +81,7 @@ def baseline(pipeline, X, y):
         pipeline.fit(X_train, y_train)
         y_pred = pipeline.predict(X_test)
         mae.append(mean_absolute_error(y_test, y_pred))
+    print("MAE: ", mae[-1])
     return mae
 
 
@@ -84,9 +92,10 @@ def get_best_params(pipeline):
         pipeline,
         param_grid={
             # Access any component of the pipeline, as far back as you want
-            'gradientboostingregressor__learning_rate': [0.001, 0.01, 0.1],
-            'gradientboostingregressor__n_estimators': [10, 100, 200, 500],
-            'gradientboostingregressor__max_depth': [2, 3, 4]
+            'gradientboostingregressor__learning_rate': [0.001, 0.01,
+                                                         0.1], # 0.1
+            'gradientboostingregressor__n_estimators': [10, 100, 200, 500], # 200
+            'gradientboostingregressor__max_depth': [2, 3, 4] # 2
         },
         cv=TimeSeriesSplit(n_splits=5),
         scoring="neg_mean_absolute_error")
@@ -97,15 +106,16 @@ def get_best_params(pipeline):
 
 if __name__=='__main__':
     # DECLARE X & Y
-    data = create_pipeline()
-    X = data.dataframe[[
+    df = import_clean_df()
+    X = df[[
         'budget', 'genre', 'duration', 'year', 'date_published',
-        'production_company'
+        'production_company', 'writer', 'director'
     ]]
-    y = data.dataframe['worlwide_gross_income']
+    y = df['worlwide_gross_income']
     y = np.log(y) / np.log(10)
 
-    #pipeline = create_pipeline()
-    #mae = baseline(pipeline, X, y)
+    pipeline = create_pipeline()
+    mae = fit_and_score(pipeline, X, y)
+
     #grid_search = get_best_params(pipeline)
-    #grid_search.best_params_
+    #print("Best params for GBD: ", grid_search.best_params_)
