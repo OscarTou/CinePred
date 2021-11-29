@@ -152,7 +152,7 @@ def add_success_movies_per_actors(df, path = "raw_data/cat_acteur.csv"):
     new_df['totalsuccess'] = new_df.groupby(by = 'title').cumsum()['shifted']
     total_success = pd.DataFrame(new_df.groupby(['title'], sort = False)['shifted'].max())
     total_success.reset_index(inplace = True)
-    df = df.merge(right=total_success, on='title', how = "right")
+    df = df.merge(right=total_success, on=, how = "right")
     return df
 
 
