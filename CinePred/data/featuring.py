@@ -3,10 +3,10 @@ from numpy.lib.shape_base import column_stack
 import pandas as pd
 import numpy as np
 
-from CinePred.data.importing import import_data
+from CinePred.data.importing import  *
+
 from CinePred.data.preprocessing import *
 import cpi
-cpi.update()
 
 # --------------------------------------- #
 # -------        featuring        ------- #
@@ -184,7 +184,7 @@ def Add_number_of_movies_per_writer_in_Timeline(df):
 def example():
 
     print('----- import Data -----')
-    df = import_data(path = 'raw_data/IMDb movies.csv')
+    df = import_data(path = 'raw_data/IMDb_movies.csv')
 
     print('----- keep columns -----')
     df = keep_columns(df,
@@ -204,8 +204,6 @@ def example():
                                min_rows=45,
                                out_currency='USD')
 
-    print('----- filter categories -----')
-    df = filter_categories(df, "actors", nb=2)
 
     print('----- convert income column -----')
     df = convert_income(df, column_name='worlwide_gross_income')
@@ -297,7 +295,7 @@ def feature_example(df):
 
 if __name__ == "__main__":
     print("\n----  PREPROCESSING -----\n")
-    df = preprocess_example(path='raw_data/IMDb movies.csv')
+    df = preprocess_example(path='../raw_data/IMDb_movies.csv')
 
     print("\n----  FEATURING -----\n")
     df = feature_example(df)
