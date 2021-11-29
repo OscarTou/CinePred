@@ -1,9 +1,11 @@
-import numpy as np
+from numpy.lib.shape_base import column_stack
 import pandas as pd
+import numpy as np
+
+from CinePred.data.importing import import_data
+from CinePred.data.preprocessing import preprocess_example
 import cpi
-from CinePred.data.importing import *
-from CinePred.data.preprocessing import *
-from CinePred.data.transformers import *
+cpi.update()
 
 # --------------------------------------- #
 # -------        featuring        ------- #
@@ -103,10 +105,12 @@ def add_cum_budget_per_production_company(df):
     return pd.DataFrame(result)
 
 
-def add_inflation_budget(df, column_year, column_money):
-    df["year_2"] = df[column_year].apply(lambda x: 2018 if x > 2018 else x)
-    return df.apply(
-        lambda x: cpi.inflate(x[column_money], x["year_2"], axis=1))
+def add_inflation(df, column):
+    df["year_2"] = df["year"].apply(lambda x: 2018 if x > 2018 else x)
+    df[column] = df.apply(lambda x: cpi.inflate(x[column], x["year_2"]),
+                          axis=1)
+    df.drop(columns='year_2', inplace=True)
+    return df
 
 
 def famour_or_not_famous(df):
@@ -137,13 +141,38 @@ def add_success_movies_per_actors(df):
     new_df['totalsuccess'] = new_df.groupby(by = 'title').cumsum()['shifted']
     total_success = pd.DataFrame(new_df.groupby(['title'], sort = False)['shifted'].max())
     total_success.reset_index(inplace = True)
-    df = df.merge(right=total_success, on='title', how = "right")
+    df.merge(right=total_success, on='title', how = "right")
+
+
+def Add_Ones(df):
+    df['Ones'] = 1
     return df
+
+def Remove_Ones(df):
+    df.drop(columns = "Ones", inplace = True)
+    return df
+
+def Add_number_of_movies_per_prod_company_in_Timeline(df):
+    df['Nb_actuals_movie_directors_company'] = df.groupby(by = "production_company").cumsum()['Ones']
+    return df
+
+
+def Add_number_of_movies_per_directors_in_Timeline(df):
+    df['Nb_actuals_movie_directors'] = df.groupby(by = "director").cumsum()['Ones']
+    return df
+
+
+def Add_number_of_movies_per_writer_in_Timeline(df):
+    df['Nb_actuals_movie_directors_writer'] = df.groupby(by = "writer").cumsum()['Ones']
+    return df
+
+
+
 
 def example():
 
     print('----- import Data -----')
-    df = import_data('../raw_data/IMDb movies.csv')
+    df = import_data('raw_data/IMDb movies.csv')
 
     print('----- keep columns -----')
     df = keep_columns(df,
@@ -190,8 +219,6 @@ def example():
     print('----- categorize writer -----')
     df = add_writer_category(df, "production_company", "production_weight")
 
-    print('----- reset index -----')
-    df = reset_index(df)
 
     print('----- data_shape -----')
     print(df.shape)
@@ -229,9 +256,14 @@ def feature_example(df):
     df["cum_budget_prod"] = add_cum_budget_per_production_company(
         df[["production_company","budget"]])
 
-    # print('----- add_inflation_budget -----')
-    # df["inflation_budget"] = add_inflation_budget(df[["budget"]])
+    #print('----- add_inflation_budget -----')
+    #df["inflation_budget"] = add_inflation_budget(df[["budget"]])
 
+    print('----- add column inflated-----')
+    df = add_inflation(df, "budget")
+
+    print('----- add income inflated-----')
+    df = add_inflation(df, "worlwide_gross_income")
     # print('----- one_hot_encode -----')
     # df["production"] = one_hot_encode(df["production_company"])
 
@@ -249,7 +281,7 @@ def feature_example(df):
 
 if __name__ == "__main__":
     print("\n----  PREPROCESSING -----\n")
-    df = preprocess_example(path='../raw_data/IMDb movies.csv')
+    df = preprocess_example(path='raw_data/IMDb movies.csv')
 
     print("\n----  FEATURING -----\n")
     df = feature_example(df)

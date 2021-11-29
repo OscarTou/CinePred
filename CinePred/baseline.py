@@ -109,8 +109,6 @@ if __name__ == '__main__':
     df['date_published'] = convert_to_date(df[['date_published']])
     df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
     df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
-    df.sort_values(by='date_published', inplace=True)
-    df = reset_index(df)
 
     # X and Y Creation
     print("---- X and Y Creation ----")
