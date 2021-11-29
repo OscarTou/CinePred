@@ -1,3 +1,4 @@
+from os import path
 from numpy.lib.shape_base import column_stack
 import pandas as pd
 import numpy as np
@@ -132,21 +133,17 @@ def famour_or_not_famous(df):
         return 1
     return 0
 
-def add_success_movies_per_actors(df):
+def add_success_movies_per_actors(df, path = "raw_data/cat_acteur.csv"):
     '''
     Function that count how many success movies an actor did in his timeline. Add weight in function of the times
     '''
-    df2 = pd.read_csv('../raw_data/cat_acteur.csv')
-    df2['ratio'] = df2['income']/df2['budget']
-    # df2_cat = df2.loc[(df2['ratio']>=5) & (df2['budget'] >= 100_000_000)]
-    # len(df2_cat['acteur_name'].unique())
-    # df2_cat[['acteur_name','budget']].groupby(by='acteur_name').sum().sort_values(by="budget", ascending=False).head(159)
-    # top_tier_actor_df = df2.groupby(by="acteur_name").sum()[['budget']].sort_values("budget", ascending=False)
-    df2.sort_values('year', ascending=True, inplace= True)
-    df2['connu'] = df2.apply(famour_or_not_famous, axis = 1)
-    df2['nbsucces'] = df2['connu']
-    new_df = df2
-    new_df['nbsuccess'] = df2.groupby(by  ='acteur_name')['connu'].cumsum(axis = 0)
+    acteurs_df = pd.read_csv(path)
+    acteurs_df['ratio'] = acteurs_df['income']/acteurs_df['budget']
+    acteurs_df.sort_values('year', ascending=True, inplace= True)
+    acteurs_df['connu'] = acteurs_df.apply(famour_or_not_famous, axis = 1)
+    acteurs_df['nbsucces'] = acteurs_df['connu']
+    new_df = acteurs_df
+    new_df['nbsuccess'] = acteurs_df.groupby(by  ='acteur_name')['connu'].cumsum(axis = 0)
     new_df = new_df.sort_values('year', ascending=True)
     new_df.drop(columns='nbsucces', inplace = True)
     new_df['connu2'] = new_df['nbsuccess'].apply(lambda x : 1 if x >=1 else 0)
@@ -155,7 +152,8 @@ def add_success_movies_per_actors(df):
     new_df['totalsuccess'] = new_df.groupby(by = 'title').cumsum()['shifted']
     total_success = pd.DataFrame(new_df.groupby(['title'], sort = False)['shifted'].max())
     total_success.reset_index(inplace = True)
-    df.merge(right=total_success, on='title', how = "right")
+    df = df.merge(right=total_success, on=, how = "right")
+    return df
 
 
 def Add_Ones(df):
@@ -186,7 +184,7 @@ def Add_number_of_movies_per_writer_in_Timeline(df):
 def example():
 
     print('----- import Data -----')
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data(path = 'raw_data/IMDb movies.csv')
 
     print('----- keep columns -----')
     df = keep_columns(df,
