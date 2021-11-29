@@ -4,7 +4,6 @@ from sklearn.preprocessing import OneHotEncoder
 from datetime import date
 from CinePred.data.utils import *
 import numpy as np
-from currency_converter import CurrencyConverter
 
 
 class Data:

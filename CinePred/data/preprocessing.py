@@ -1,6 +1,10 @@
 from CinePred.data.importing import import_data
 import pandas as pd
 import numpy as np
+import os.path
+from pandas.api.types import is_numeric_dtype
+from pandas.api.types import is_string_dtype
+from pandas.api.types import is_object_dtype
 
 # --------------------------------------- #
 # -------       preprocess        ------- #
@@ -86,25 +90,28 @@ def reduce_column_type(df, nb_max=5):
     return pd.DataFrame(df_copy)
 
 
-def convert_budget_column(df, path='raw_data/currencies.csv'):
+def convert_budget_column(df):
     '''
         convert budget column in USD value converted in int
     '''
+    if (not is_numeric_dtype(df.iloc[:,0])):
+        dirname = os.path.dirname(__file__)
+        filename = os.path.join(dirname, '../../raw_data/currencies.csv')
+        df_currencies = import_data(filename)
+        df_copy = df.copy()
+        budget = df_copy.iloc[:, 0].str.split()
+        df_copy['budget_cur'] = budget.apply(lambda x: x[0])
+        df_copy['budget_val'] = budget.apply(lambda x: x[1]).astype('int64')
 
-    df_currencies = import_data(path)
-    df_copy = df.copy()
-    budget = df_copy.iloc[:, 0].str.split()
-    df_copy['budget_cur'] = budget.apply(lambda x: x[0])
-    df_copy['budget_val'] = budget.apply(lambda x: x[1]).astype('int64')
+        result = pd.DataFrame({
+            'budget_val': df_copy['budget_val'],
+            'budget_cur': df_copy['budget_cur']
+        }).apply(lambda x: convert_in_usd(x['budget_val'], x['budget_cur'],
+                                        df_currencies),
+                axis=1)
 
-    result = pd.DataFrame({
-        'budget_val': df_copy['budget_val'],
-        'budget_cur': df_copy['budget_cur']
-    }).apply(lambda x: convert_in_usd(x['budget_val'], x['budget_cur'],
-                                      df_currencies),
-             axis=1)
-
-    return pd.DataFrame(result)
+        return pd.DataFrame(result)
+    return df
 
 def log_transformation(df):
     df = np.log(df)/np.log(10)
@@ -141,7 +148,7 @@ def preprocess_example(path='raw_data/IMDb movies.csv'):
 
     print('----- convert to date -----')
     df['date_published'] = convert_to_date(df[['date_published']])
-    print(df.dtypes)
+
     print('----- log transform -----')
     df['worlwide_gross_income'] = log_transformation(
         df[['worlwide_gross_income']])
