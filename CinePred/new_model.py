@@ -5,7 +5,8 @@ from CinePred.data.featuring import *
 from CinePred.data.transformers import GenreOHE
 
 from sklearn.model_selection import cross_val_score, GridSearchCV
-from xgboost import XGBRegressor
+from xgboost import XGBRegressor, plot_importance
+from matplotlib import pyplot
 import numpy as np
 
 def preproc(df):
@@ -49,7 +50,7 @@ def preproc(df):
 
     # income
     df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
-    #df = add_inflation(df, 'worlwide_gross_income')
+    df = add_inflation(df, 'worlwide_gross_income')
     df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
 
     # Cumsum
@@ -66,6 +67,15 @@ def preproc(df):
             inplace=True)
 
     return df
+
+def feature_importance(df):
+    X = df.drop(columns=['worlwide_gross_income'])
+    y = df['worlwide_gross_income']
+    model = XGBRegressor(learning_rate=0.1, max_depth=2)
+    model.fit(X, y)
+    print(model.feature_importances_)
+    plot_importance(model)
+    pyplot.show()
 
 
 def get_best_params(model, X, y):
@@ -86,14 +96,12 @@ def get_best_params(model, X, y):
     grid_search.fit(X, y)
     return grid_search.best_params_
 
-
 def get_mae(df):
     X = df.drop(columns=['worlwide_gross_income'])
     y = df['worlwide_gross_income']
     model = XGBRegressor(learning_rate=0.1, max_depth=2)
-    params = get_best_params(model, X, y)
-    print(params)
-    #return cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
+
+    return cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
 
 def predict(df):
     '''
@@ -110,10 +118,9 @@ def predict(df):
 def predict2(df):
     ''' Get the mae on the full dataset (crossvalidated) '''
 
-    score1 = np.abs(get_mae(
-        df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
-    print(score1)
-    return(np.mean(round(score1, 2)))
+    score = np.abs(get_mae(df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
+    score = round(np.mean(score),2)
+    return(score)
 
 
 if __name__ == '__main__':
@@ -122,8 +129,9 @@ if __name__ == '__main__':
 
     # Prepare
     df = preproc(df)
+    print(df.columns)
+    # Get best features
+    #feature_importance(df)
 
     # Predict
-    #print(predict(df))
-    #print(predict2(df))
-    get_mae(df)
+    #print(predict(df)[1])
