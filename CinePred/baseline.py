@@ -19,16 +19,11 @@ def create_baseline_pipeline():
 
     # PIPELINE
     budget_transformer = FunctionTransformer(convert_budget_column)
-
-    int_transformer = FunctionTransformer(convert_to_int)
-    time_pipeline = make_pipeline(int_transformer, RobustScaler())
-
     genre_transformer = make_pipeline(GenreOHE())
     sin_transformer = FunctionTransformer(add_sin_features)
     cos_transformer = FunctionTransformer(add_cos_features)
 
     preproc_basic = make_column_transformer(
-        (time_pipeline, ['year', 'duration']),
         (budget_transformer, ['budget']),
         (sin_transformer, ['date_published']),
         (cos_transformer, ['date_published']),
@@ -40,7 +35,8 @@ def create_baseline_pipeline():
     return pipeline
 
 def cross_val(pipeline, X, y):
-    cv = cross_val_score(pipeline, X, y, cv=TimeSeriesSplit(n_splits=5), scoring='neg_mean_absolute_error')
+    cv = cross_val_score(pipeline, X, y, cv=5, scoring='neg_mean_absolute_error')
+    print(cv)
     return cv[-1]
 
 
@@ -97,9 +93,7 @@ if __name__ == '__main__':
     df = import_data('raw_data/IMDb movies.csv')
     df = keep_columns(df,column_names=[
         'budget',
-        'duration',
         'genre',
-        'year',
         'date_published',
         'worlwide_gross_income'])
 
@@ -114,9 +108,7 @@ if __name__ == '__main__':
     print("---- X and Y Creation ----")
     X = df[[
         'budget',
-        'duration',
         'genre',
-        'year',
         'date_published',
     ]]
     y = df['worlwide_gross_income']
