@@ -91,8 +91,9 @@ def get_mae(df):
     X = df.drop(columns=['worlwide_gross_income'])
     y = df['worlwide_gross_income']
     model = XGBRegressor(learning_rate=0.1, max_depth=2)
-
-    return cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
+    params = get_best_params(model, X, y)
+    print(params)
+    #return cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
 
 def predict(df):
     '''
@@ -107,12 +108,10 @@ def predict(df):
     return [round(score1, 2), round(score2, 2)]
 
 def predict2(df):
-    '''
-        Input: a preprocessed df
-        Output: 2 scores MAE scores '''
+    ''' Get the mae on the full dataset (crossvalidated) '''
 
-
-    score1 = np.abs(get_mae(df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 200}
+    score1 = np.abs(get_mae(
+        df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
     print(score1)
     return(np.mean(round(score1, 2)))
 
@@ -125,6 +124,6 @@ if __name__ == '__main__':
     df = preproc(df)
 
     # Predict
-    print(predict(df))
-
-    print(predict2(df))
+    #print(predict(df))
+    #print(predict2(df))
+    get_mae(df)
