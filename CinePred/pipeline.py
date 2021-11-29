@@ -11,11 +11,10 @@ from sklearn.preprocessing import FunctionTransformer, RobustScaler, OneHotEncod
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
 
-from currency_converter import CurrencyConverter
 from xgboost import XGBRegressor
 
 
-def import_clean_df(path = "raw_data/IMDb movies.csv"):
+def import_clean_df(path = "raw_data/IMDb_movies.csv"):
     # IMPORT DF
     df = import_data(path)
 

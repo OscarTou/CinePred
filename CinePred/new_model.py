@@ -9,14 +9,13 @@ from xgboost import XGBRegressor
 import numpy as np
 from joblib import dump, load
 
-def preproc(df, path = "../raw_data/cat_acteur.csv"):
+def preproc(df, path = "raw_data/cat_acteur.csv"):
     '''
         Clean the dataframe
 
         Input: dataframe
         Output: dataframe cleaned and sorted by budget
     '''
-    print("preproc")
     # NA & columns:
     df = add_success_movies_per_actors(df, path = path)
 
@@ -145,7 +144,7 @@ def get_fitted_model(df):
 
 if __name__ == '__main__':
     # Import
-    df = import_data(link = '../raw_data/IMDb_movies.csv')
+    df = import_data(link = 'raw_data/IMDb_movies.csv')
 
 
     # Prepare
