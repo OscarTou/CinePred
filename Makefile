@@ -106,3 +106,18 @@ upload_data:
 upload_data_2:
     # @gsutil cp train_1k.csv gs://wagon-ml-my-bucket-name/data/train_1k.csv
 	gsutil cp ${LOCAL_PATH_2} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME_2}
+
+
+
+
+# ----------------------------------
+#         	Run locally
+# ----------------------------------
+
+
+PACKAGE_NAME=CinePred
+FILENAME= new_model
+
+
+run_locally:
+	python -m ${PACKAGE_NAME}.${FILENAME}

@@ -144,7 +144,7 @@ def get_fitted_model(df):
 
 if __name__ == '__main__':
     # Import
-    df = import_data(link = 'raw_data/IMDb movies.csv')
+    df = import_data(path = 'raw_data/IMDb movies.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")
