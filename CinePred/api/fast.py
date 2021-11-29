@@ -74,9 +74,9 @@ def search_actors(name):
 
     return actor_dict
 
-@app.get("/predict")
-def prediction(X):
+# @app.get("/predict")
+# def prediction(X):
 
-    # X = []
+#     # X = []
 
-    return predict(X)
+#     return predict(X)
