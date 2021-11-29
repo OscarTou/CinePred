@@ -1,5 +1,4 @@
-from sklearn.pipeline import _name_estimators
-from CinePred.data.importing import *
+from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import *
 from CinePred.data.featuring import *
 from CinePred.data.transformers import GenreOHE
@@ -10,7 +9,7 @@ from matplotlib import pyplot
 import numpy as np
 from joblib import dump, load
 
-def preproc(df, path = "raw_data/cat_acteur.csv"):
+def preproc(df, path="raw_data/cat_acteur.csv"):
     '''
         Clean the dataframe
 
@@ -18,7 +17,7 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
         Output: dataframe cleaned and sorted by budget
     '''
     # NA & columns:
-    df = add_success_movies_per_actors(df, path = path)
+    df = add_success_movies_per_actors(df, path=path)
 
     df = keep_columns(df,
                       column_names=[
@@ -47,7 +46,7 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
 
     # budget
     df['budget'] = convert_budget_column(df[['budget']])
-    df = df[df['budget'] != 0]
+    df = df[df['budget'] > 100]
     df = add_inflation(df, 'budget')
     df['budget'] = log_transformation(df[['budget']])
 
@@ -116,7 +115,7 @@ def predict(df):
 
     score1 = np.mean(np.abs(get_mae(df1))) # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 200}
     score2 = np.mean(np.abs(get_mae(df2))) # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
-    return [round(score1, 2), round(score2, 2)]
+    return [round(score1, 3), round(score2, 3)]
 
 def predict2(df):
     ''' Get the mae on the full dataset (crossvalidated) '''
@@ -140,7 +139,10 @@ def load_model(file_name="model.joblib"):
     return load(filepath)
 
 def get_fitted_model(df):
-    X = df.drop(columns=['worlwide_gross_income'])
+    X = df.drop(columns=[
+        'worlwide_gross_income', 'Music', "Thriller", 'date_sin', 'Action',
+        'Documentary', 'Film-Noir', 'Fantasy', 'Musical', 'Western', 'Crime'
+    ])
     y = df['worlwide_gross_income']
     model = XGBRegressor(learning_rate=0.1, max_depth=2)
     model.fit(X,y)
@@ -150,26 +152,27 @@ def get_fitted_model(df):
 
 if __name__ == '__main__':
     # Import
-    df = import_data(path = 'raw_data/IMDb movies.csv')
+    print("----- IMPORT DATA ------")
+    df = import_data(path='raw_data/IMDb movies.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")
-    df_preproc = preproc(df)
+    df_preproc = preproc(df, path="raw_data/cat_acteur.csv")
 
     # Predict
     print("----- PREDICT DATA ------")
-    print(predict(df_preproc)[1])
+    print(predict(df_preproc))
 
-    print("----- GET FITTED MODEL ------")
-    model = get_fitted_model(df_preproc)
+    #print("----- GET FITTED MODEL ------")
+    #model = get_fitted_model(df_preproc)
 
-    print("----- SAVE MODEL ------")
-    save_model(model, "model.joblib")
+    #print("----- SAVE MODEL ------")
+    #save_model(model, "model.joblib")
 
-    print("----- LOAD MODEL ------")
-    model = load_model("model.joblib")
+    #print("----- LOAD MODEL ------")
+    #model = load_model("model.joblib")
 
-    print("----- PREDICT MODEL ------")
-    prediction = predict_fromX(
-        model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
-    print(prediction)
+    #print("----- PREDICT MODEL ------")
+    #prediction = predict_fromX(
+    #    model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
+    #print(prediction)

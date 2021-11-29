@@ -75,7 +75,7 @@ def Remove_Ones(df):
     return df
 
 def Add_number_of_movies_per_prod_company_in_Timeline(df):
-    df['Nb_actuals_movie_directors_company'] = df.groupby(by = "production_company").cumsum()['Ones']
+    df['Nb_actuals_movie_production_company'] = df.groupby(by = "production_company").cumsum()['Ones']
     return df
 
 def Add_number_of_movies_per_directors_in_Timeline(df):
@@ -83,7 +83,7 @@ def Add_number_of_movies_per_directors_in_Timeline(df):
     return df
 
 def Add_number_of_movies_per_writer_in_Timeline(df):
-    df['Nb_actuals_movie_directors_writer'] = df.groupby(by = "writer").cumsum()['Ones']
+    df['Nb_actuals_movie_writers'] = df.groupby(by = "writer").cumsum()['Ones']
     return df
 
 
