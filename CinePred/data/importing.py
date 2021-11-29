@@ -5,7 +5,7 @@ import os
 # -------        Data init        ------- #
 # --------------------------------------- #
 
-def import_data(link = "../raw_data/IMDb_movies.csv"):
+def import_data(link = "raw_data/IMDb_movies.csv"):
     '''
     read the CSV file located in link
     Parameters

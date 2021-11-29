@@ -295,7 +295,7 @@ def feature_example(df):
 
 if __name__ == "__main__":
     print("\n----  PREPROCESSING -----\n")
-    df = preprocess_example(path='../raw_data/IMDb_movies.csv')
+    df = preprocess_example(path='raw_data/IMDb_movies.csv')
 
     print("\n----  FEATURING -----\n")
     df = feature_example(df)
