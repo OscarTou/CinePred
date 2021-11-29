@@ -50,10 +50,10 @@ def create_pipeline():
 
 
     preproc_basic = make_column_transformer(
+        q(time_pipeline, ['year', 'duration']),
         (sin_transformer, ['date_published']),
         (cos_transformer, ['date_published']),
         (budget_transformer, ['budget']),
-        (director_transformer, ['director']),
         (genre_transformer, ['genre']))
 
 
