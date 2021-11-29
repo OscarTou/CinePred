@@ -7,6 +7,7 @@ from CinePred.data.transformers import GenreOHE
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from xgboost import XGBRegressor
 import numpy as np
+from joblib import dump, load
 
 def preproc(df, path = "raw_data/cat_acteur.csv"):
     '''
@@ -115,7 +116,30 @@ def predict2(df):
     score1 = np.abs(get_mae(
         df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
     print(score1)
-    return(np.mean(round(score1, 2)))
+    return(np.mean(np.round(score1, 2)))
+
+
+def predict_fromX(model, df):
+    prediction = model.predict(df)
+    return 10 ** prediction[0]
+
+def save_model(fitted_model, file_name="model.joblib"):
+    dirname = os.path.dirname(__file__)
+    filepath = os.path.join(dirname, 'models/'+file_name)
+    dump(fitted_model, filepath)
+
+def load_model(file_name="model.joblib"):
+    dirname = os.path.dirname(__file__)
+    filepath = os.path.join(dirname, 'models/'+file_name)
+    return load(filepath)
+
+def get_fitted_model(df):
+    X = df.drop(columns=['worlwide_gross_income'])
+    y = df['worlwide_gross_income']
+    model = XGBRegressor(learning_rate=0.1, max_depth=2)
+    model.fit(X,y)
+    return model
+
 
 
 if __name__ == '__main__':
@@ -123,9 +147,27 @@ if __name__ == '__main__':
     df = import_data(path = 'raw_data/IMDb movies.csv')
 
     # Prepare
-    df = preproc(df)
+    print("----- CLEAN DATA ------")
+    df_preproc = preproc(df)
 
     # Predict
+    print("----- PREDICT DATA ------")
+    #print(predict(df_preproc))
+    #print(predict2(df_preproc))
+
+    print("----- GET FITTED MODEL ------")
+    model = get_fitted_model(df_preproc)
+
+    print("----- SAVE MODEL ------")
+    save_model(model, "model.joblib")
+
+    print("----- LOAD MODEL ------")
+    model = load_model("model.joblib")
+
+    print("----- PREDICT MODEL ------")
+    prediction = predict_fromX(
+        model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
+    print(prediction)
     #print(predict(df))
     #print(predict2(df))
-    get_mae(df)
+    #get_mae(df)
