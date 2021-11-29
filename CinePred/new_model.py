@@ -16,7 +16,6 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
         Input: dataframe
         Output: dataframe cleaned and sorted by budget
     '''
-    print("preproc")
     # NA & columns:
     df = add_success_movies_per_actors(df, path = path)
 
