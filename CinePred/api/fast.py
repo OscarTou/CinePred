@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from CinePred.data.importing import *
 from CinePred.data.preprocessing import *
+from CinePred.new_model import predict
+
 import numpy as np
 from deep_translator import GoogleTranslator
 
@@ -69,3 +71,10 @@ def search_actors(name):
         actor_dict.update(tmpy_dic)
 
     return actor_dict
+
+@app.get("/predict")
+def prediction(X):
+
+    # X = []
+
+    return predict(X)

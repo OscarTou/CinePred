@@ -8,8 +8,9 @@ from sklearn.model_selection import cross_val_score, GridSearchCV
 from xgboost import XGBRegressor, plot_importance
 from matplotlib import pyplot
 import numpy as np
+from joblib import dump, load
 
-def preproc(df):
+def preproc(df, path = "raw_data/cat_acteur.csv"):
     '''
         Clean the dataframe
 
@@ -17,11 +18,13 @@ def preproc(df):
         Output: dataframe cleaned and sorted by budget
     '''
     # NA & columns:
+    df = add_success_movies_per_actors(df, path = path)
+
     df = keep_columns(df,
                       column_names=[
                           'year', 'date_published', 'genre', 'duration',
                           'budget', 'worlwide_gross_income',
-                          'production_company', 'director', 'writer'
+                          'production_company', 'director', 'writer', 'shifted'
                       ])
     df = remove_na_rows(df)
 
@@ -122,16 +125,51 @@ def predict2(df):
     score = round(np.mean(score),2)
     return(score)
 
+def predict_fromX(model, df):
+    prediction = model.predict(df)
+    return 10 ** prediction[0]
+
+def save_model(fitted_model, file_name="model.joblib"):
+    dirname = os.path.dirname(__file__)
+    filepath = os.path.join(dirname, 'models/'+file_name)
+    dump(fitted_model, filepath)
+
+def load_model(file_name="model.joblib"):
+    dirname = os.path.dirname(__file__)
+    filepath = os.path.join(dirname, 'models/'+file_name)
+    return load(filepath)
+
+def get_fitted_model(df):
+    X = df.drop(columns=['worlwide_gross_income'])
+    y = df['worlwide_gross_income']
+    model = XGBRegressor(learning_rate=0.1, max_depth=2)
+    model.fit(X,y)
+    return model
+
+
 
 if __name__ == '__main__':
     # Import
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data(path = 'raw_data/IMDb movies.csv')
 
     # Prepare
-    df = preproc(df)
-    print(df.columns)
-    # Get best features
-    #feature_importance(df)
+    print("----- CLEAN DATA ------")
+    df_preproc = preproc(df)
 
     # Predict
-    #print(predict(df)[1])
+    print("----- PREDICT DATA ------")
+    print(predict(df_preproc)[1])
+
+    print("----- GET FITTED MODEL ------")
+    model = get_fitted_model(df_preproc)
+
+    print("----- SAVE MODEL ------")
+    save_model(model, "model.joblib")
+
+    print("----- LOAD MODEL ------")
+    model = load_model("model.joblib")
+
+    print("----- PREDICT MODEL ------")
+    prediction = predict_fromX(
+        model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
+    print(prediction)

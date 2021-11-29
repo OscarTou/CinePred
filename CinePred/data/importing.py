@@ -4,7 +4,7 @@ import pandas as pd
 # -------        Data init        ------- #
 # --------------------------------------- #
 
-def import_data(link):
+def import_data(link = "raw_data/IMDb_movies.csv"):
     '''
     read the CSV file located in link
     Parameters
@@ -17,4 +17,4 @@ def import_data(link):
 
 if __name__ == "__main__":
     print('----- import Data -----')
-    df = import_data('raw_data/IMDb movies.csv')
+    df = import_data()
