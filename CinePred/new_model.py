@@ -80,7 +80,7 @@ def get_mae(df):
     X = df.drop(columns=['worlwide_gross_income'])
     y = df['worlwide_gross_income']
     model = XGBRegressor(learning_rate=0.1, max_depth=2)
-    
+
     return cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
 
 def predict(df):
