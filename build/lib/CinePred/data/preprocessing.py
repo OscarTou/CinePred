@@ -117,36 +117,7 @@ def log_transformation(df):
     df = np.log(df)/np.log(10)
     return pd.DataFrame(df)
 
-
-def one_hot_encode_multiple(data, column_name, remove_column=True):
-    # separate all genres into one list, considering comma + space as separators
-    genre = data[column_name].str.split(', ').tolist()
-
-    # flatten the list
-    flat_genre = [item for sublist in genre for item in sublist]
-
-    # convert to a set to make unique
-    set_genre = set(flat_genre)
-
-    # back to list
-    unique_genre = list(set_genre)
-
-    # create columns by each unique genre
-    data = data.reindex(data.columns.tolist() + unique_genre,
-                        axis=1,
-                        fill_value=0)
-
-    # for each value inside column, update the dummy
-    for index, row in data.iterrows():
-        for val in row[column_name].split(', '):
-            if val != 'NA':
-                data.loc[index, val] = 1
-
-    data.drop(column_name, axis=1, inplace=True)
-    return data
-
-
-def preprocess_example(path='../raw_data/IMDb_movies.csv'):
+def preprocess_example(path='raw_data/IMDb movies.csv'):
     print('----- import Data -----')
     df = import_data(path)
 
@@ -185,18 +156,6 @@ def preprocess_example(path='../raw_data/IMDb_movies.csv'):
     print('----- data_shape -----')
 
     return df
-
-
-
-
-
-def reduce_column_type(data, column_name, nb_max=5):
-    # separate all actors into lists
-    actor_list = data[column_name].str.split(', ').tolist()
-    #return top 5 actors
-    data[column_name] = [','.join(actor[:nb_max]) for actor in actor_list]
-    return data
-
 
 if __name__ == "__main__":
     preprocess_example()

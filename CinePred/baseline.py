@@ -12,7 +12,6 @@ from sklearn.preprocessing import FunctionTransformer, RobustScaler, OneHotEncod
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
 
-from currency_converter import CurrencyConverter
 from xgboost import XGBRegressor
 
 
@@ -44,7 +43,7 @@ if __name__ == '__main__':
 
     # Init DataFrame
     print("---- Init Data ----")
-    df = import_data(path = 'raw_data/IMDb movies.csv')
+    df = import_data(path = 'raw_data/IMDb_movies.csv')
     df = keep_columns(df,column_names=[
         'budget',
         'duration',

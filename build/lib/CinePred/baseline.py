@@ -1,28 +1,75 @@
-from sklearn.model_selection import TimeSeriesSplit
-from sklearn.metrics import r2_score
+from CinePred.data.importing import *
+from CinePred.data.preprocessing import *
+from CinePred.data.featuring import *
+from CinePred.data.transformers import *
+from CinePred.pipeline import *
+
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV, cross_validate
+from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.pipeline import make_pipeline
+from sklearn.compose import make_column_transformer
+from sklearn.preprocessing import FunctionTransformer, RobustScaler, OneHotEncoder
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.linear_model import LinearRegression
+
+from currency_converter import CurrencyConverter
+from xgboost import XGBRegressor
 
 
-def get_baseline_scores(model, X, y):
-    """
-        Baseline model
+def create_pipeline():
 
-        Input:
-            X, y: sorted by year (ascending), cleaning and scaled
-            model: LinearRegression (for example)
+    # PIPELINE
+    budget_transformer = FunctionTransformer(convert_budget_column)
 
-        Returns:
-            r2: a list of 5 r2 scores
-    """
+    int_transformer = FunctionTransformer(convert_to_int)
+    time_pipeline = make_pipeline(int_transformer, RobustScaler())
 
-    r2 = []
-    tscv = TimeSeriesSplit(n_splits=5)
-    for train_index, test_index in tscv.split(X):
-        print("TRAIN:", train_index, "TEST:", test_index)
-        X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-        y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+    sin_transformer = FunctionTransformer(add_sin_features)
+    cos_transformer = FunctionTransformer(add_cos_features)
 
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        r2.append(r2_score(y_test, y_pred))
-    print("R2 scores: ", r2)
-    return r2
+    preproc_basic = make_column_transformer(
+        (time_pipeline, ['year', 'duration']),
+        (budget_transformer, ['budget']),
+        (sin_transformer, ['date_published']),
+        (cos_transformer, ['date_published'])
+        )
+
+    pipeline = make_pipeline(preproc_basic, LinearRegression())
+
+    return pipeline
+
+
+
+if __name__ == '__main__':
+
+    # Init DataFrame
+    print("---- Init Data ----")
+    df = import_data(path = 'raw_data/IMDb movies.csv')
+    df = keep_columns(df,column_names=[
+        'budget',
+        'duration',
+        'year',
+        'date_published',
+        'worlwide_gross_income'])
+
+    # Cleaning DataFrame
+    print("---- Cleaning Data ----")
+    df = remove_na_rows(df)
+    df['date_published'] = convert_to_date(df[['date_published']])
+    df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
+    df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
+
+    # X and Y Creation
+    print("---- X and Y Creation ----")
+    X = df[[
+        'budget',
+        'duration',
+        'year',
+        'date_published',
+    ]]
+    y = df['worlwide_gross_income']
+
+    # Pipeline and fit
+    print("---- Pipeline Creation ----")
+    pipeline = create_pipeline()
+    mae = fit_and_score(pipeline, X, y)
