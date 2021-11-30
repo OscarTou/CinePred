@@ -23,10 +23,10 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
     df = add_success_movies_per_actors(df, path = path)
 
     df = keep_columns(df,
+
                       column_names=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income',
                           'year', 'date_published', 'genre', 'duration',
-                          'budget',
-                          'production_company', 'director', 'writer', 'shifted'
+                          'budget','production_company', 'director', 'writer', 'shifted'
                       ])
     df = remove_na_rows(df)
 
@@ -106,7 +106,7 @@ def predict(df):
         Input: a preprocessed df
         Output: 2 scores MAE scores '''
 
-    mid = int(df.shape[0] / 2)
+    mid = int(len(df) / 2)
     df1 = df.iloc[:mid].copy()
     df2 = df.iloc[mid:].copy()
 
@@ -149,7 +149,6 @@ def get_fitted_model(df):
 if __name__ == '__main__':
     # Import
     df = import_data(link = 'raw_data/IMDb_movies.csv')
-
 
     # Prepare
     print("----- CLEAN DATA ------")
