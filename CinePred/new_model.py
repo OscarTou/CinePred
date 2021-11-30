@@ -1,3 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from sklearn.pipeline import _name_estimators
 from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import *
 from CinePred.data.featuring import *
@@ -22,7 +26,8 @@ def preproc(df, path="raw_data/cat_acteur.csv"):
     df = add_total_income_of_last_movie_of_actors_in_Timeline(df, path=path)
 
     df = keep_columns(df,
-                      column_names=[
+
+                      column_names=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income',
                           'year', 'date_published', 'genre', 'duration',
                           'budget', 'worlwide_gross_income',
                           'production_company', 'director', 'writer',
@@ -113,7 +118,8 @@ def predict(df):
     '''
         Input: a preprocessed df
         Output: 2 scores MAE scores '''
-    mid = int(df.shape[0] / 2)
+
+    mid = int(len(df) / 2)
     df1 = df.iloc[:mid].copy()
     df2 = df.iloc[mid:].copy()
 
@@ -156,8 +162,7 @@ def get_fitted_model(df):
 
 if __name__ == '__main__':
     # Import
-    print("----- IMPORT DATA ------")
-    df = import_data(path='raw_data/IMDb movies.csv')
+    df = import_data(link = 'raw_data/IMDb_movies.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")
@@ -167,16 +172,20 @@ if __name__ == '__main__':
     print("----- PREDICT DATA ------")
     print(predict(df_preproc))
 
-    #print("----- GET FITTED MODEL ------")
-    #model = get_fitted_model(df_preproc)
+    print("----- GET FITTED MODEL ------")
+    # model = get_fitted_model(df_preproc)
 
-    #print("----- SAVE MODEL ------")
-    #save_model(model, "model.joblib")
+    print("----- SAVE MODEL ------")
+    # save_model(model, "model.joblib")
 
     #print("----- LOAD MODEL ------")
     #model = load_model("model.joblib")
 
-    #print("----- PREDICT MODEL ------")
+    print("----- PREDICT MODEL ------")
     #prediction = predict_fromX(
-    #    model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
+    #    model,df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
     #print(prediction)
+    #print(df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
+    #print(predict(df))
+    #print(predict2(df))
+    #get_mae(df)

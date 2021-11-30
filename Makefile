@@ -116,8 +116,31 @@ upload_data_2:
 
 
 PACKAGE_NAME=CinePred
-FILENAME= new_model
-
+FILENAME=new_model
 
 run_locally:
 	python -m ${PACKAGE_NAME}.${FILENAME}
+
+# ----------------------------------
+#          GCP_submit_training
+# ----------------------------------
+
+REGION=europe-west1
+
+PYTHON_VERSION=3.7
+FRAMEWORK=scikit-learn
+RUNTIME_VERSION=1.15
+
+
+JOB_NAME=cinepred_pipeline_$(shell date +'%Y%m%d_%H%M%S')
+
+
+gcp_submit_training:
+	gcloud ai-platform jobs submit training ${JOB_NAME} \
+		--job-dir gs://${BUCKET_NAME}/${BUCKET_TRAINING_FOLDER} \
+		--package-path ${PACKAGE_NAME} \
+		--module-name ${PACKAGE_NAME}.${FILENAME} \
+		--python-version=${PYTHON_VERSION} \
+		--runtime-version=${RUNTIME_VERSION} \
+		--region ${REGION} \
+		--stream-logs

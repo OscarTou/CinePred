@@ -1,16 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # from os import link
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from CinePred.data.importing import import_data
-from CinePred.data.preprocessing import *
-# from CinePred.new_model import preproc
+# from CinePred.data.preprocessing import *
+from CinePred.new_model import load_model, predict_fromX, preproc
 
 import pandas as pd
 import numpy as np
 # from deep_translator import GoogleTranslator
-
 df = import_data()
-df = preprocess_example(path='raw_data/IMDb_movies.csv')
+
 
 app = FastAPI()
 
@@ -32,13 +33,10 @@ def index():
 def search_movie(title):
     movie_dic = {}
     for i in range(7000,8000):
-
         movie_dic[df['title'].iloc[0:df.shape[0]][i]] = {'Actors' : df['actors'].iloc[0:df.shape[0]][i],
-                                                         'Country' : df['country'].iloc[0:df.shape[0]][i],
-                                                         'imdb_title_id' : df['imdb_title_id'].iloc[0:df.shape[0]][i],
-                                                         'Income' : np.round(10**(df['worlwide_gross_income'].iloc[0:df.shape[0]][i]),2)
-                                                        #  'Numbers of blockbuster' : df['shifted'].iloc[0:df.shape[0]][i]
-                                                         }
+                                                        'Country' : df['country'].iloc[0:df.shape[0]][i],
+                                                        'imdb_title_id' : df['imdb_title_id'].iloc[0:df.shape[0]][i],
+                                                        'Income' : np.round((10**(df['worlwide_gross_income'].iloc[0:df.shape[0]][i])),2)}
 
         # en dehors du form movie_dic['title'] = movie_dic.keys
     movie_dic['Movie title'] = movie_dic
@@ -74,9 +72,19 @@ def search_actors(name):
 
     return actor_dict
 
-# @app.get("/predict")
-# def prediction(X):
+@app.get("/predict")
+def prediction():
+    # model = load_model("../models/model.joblib")
+    # X = df_clean.head(1).drop(columns='worlwide_gross_income')
+    # return predict_fromX(model,X)
+    # Prepare
+    print("----- CLEAN DATA ------")
+    df_preproc = preproc(df)
 
-#     # X = []
+    print("----- LOAD MODEL ------")
+    model = load_model("model.joblib")
 
-#     return predict(X)
+    print("----- PREDICT MODEL ------")
+    prediction = predict_fromX(
+        model,df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
+    return prediction
