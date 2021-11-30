@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 from sklearn.pipeline import _name_estimators
 from CinePred.data.importing import *
 from CinePred.data.preprocessing import *
@@ -21,7 +24,7 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
 
     df = keep_columns(df,
                       column_names=[
-                          'year', 'date_published', 'genre', 'duration',
+                          'title','year', 'date_published', 'genre', 'duration',
                           'budget', 'worlwide_gross_income',
                           'production_company', 'director', 'writer', 'shifted'
                       ])
@@ -102,6 +105,7 @@ def predict(df):
     '''
         Input: a preprocessed df
         Output: 2 scores MAE scores '''
+
     mid = int(df.shape[0] / 2)
     df1 = df.iloc[:mid].copy()
     df2 = df.iloc[mid:].copy()
@@ -157,10 +161,10 @@ if __name__ == '__main__':
     #print(predict2(df_preproc))
 
     print("----- GET FITTED MODEL ------")
-    model = get_fitted_model(df_preproc)
+    # model = get_fitted_model(df_preproc)
 
     print("----- SAVE MODEL ------")
-    save_model(model, "model.joblib")
+    # save_model(model, "model.joblib")
 
     print("----- LOAD MODEL ------")
     model = load_model("model.joblib")
@@ -169,6 +173,7 @@ if __name__ == '__main__':
     prediction = predict_fromX(
         model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
     print(prediction)
+    print(df_preproc.head(1).drop(columns='worlwide_gross_income').iloc[0].tolist())
     #print(predict(df))
     #print(predict2(df))
     #get_mae(df)
