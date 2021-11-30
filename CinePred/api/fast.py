@@ -10,11 +10,8 @@ from CinePred.new_model import load_model, predict_fromX, preproc
 import pandas as pd
 import numpy as np
 # from deep_translator import GoogleTranslator
-df = import_data(link = 'raw_data/IMDb_movies.csv')
-# df_clean = preproc(df, path = "raw_data/cat_acteur.csv")
+df = import_data()
 
-
-# "gs://wagon-data-722-cinepred/data/IMDb_movies.csv"
 
 app = FastAPI()
 
@@ -36,13 +33,10 @@ def index():
 def search_movie(title):
     movie_dic = {}
     for i in range(7000,8000):
-
         movie_dic[df['title'].iloc[0:df.shape[0]][i]] = {'Actors' : df['actors'].iloc[0:df.shape[0]][i],
-                                                         'Country' : df['country'].iloc[0:df.shape[0]][i],
-                                                         'imdb_title_id' : df['imdb_title_id'].iloc[0:df.shape[0]][i],
-                                                         'Income' : np.round(10**(df['worlwide_gross_income'].iloc[0:df.shape[0]][i]),2)
-                                                        #  'Numbers of blockbuster' : df['shifted'].iloc[0:df.shape[0]][i]
-                                                         }
+                                                        'Country' : df['country'].iloc[0:df.shape[0]][i],
+                                                        'imdb_title_id' : df['imdb_title_id'].iloc[0:df.shape[0]][i],
+                                                        'Income' : np.round((10**(df['worlwide_gross_income'].iloc[0:df.shape[0]][i])),2)}
 
         # en dehors du form movie_dic['title'] = movie_dic.keys
     movie_dic['Movie title'] = movie_dic
@@ -92,11 +86,5 @@ def prediction():
 
     print("----- PREDICT MODEL ------")
     prediction = predict_fromX(
-        model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
-    return [prediction, df_preproc.head(1).drop(columns='worlwide_gross_income').iloc[0].tolist()]
-
-
-if __name__ == "__main__":
-
-
-    print(prediction())
+        model,df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
+    return [prediction, df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']).iloc[0].tolist()]
