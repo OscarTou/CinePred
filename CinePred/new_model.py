@@ -23,7 +23,6 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
     df = add_success_movies_per_actors(df, path = path)
 
     df = keep_columns(df,
-
                       column_names=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income',
                           'year', 'date_published', 'genre', 'duration',
                           'budget','production_company', 'director', 'writer', 'shifted'
@@ -49,7 +48,7 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
 
     # budget
     df['budget'] = convert_budget_column(df[['budget']])
-    df = df[df['budget'] != 0]
+    df = df[df['budget'] < 100]
     df = add_inflation(df, 'budget')
     df['budget'] = log_transformation(df[['budget']])
 
