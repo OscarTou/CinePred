@@ -1,5 +1,3 @@
-from os import path
-from numpy.lib.shape_base import column_stack
 import pandas as pd
 import numpy as np
 
@@ -47,13 +45,13 @@ def add_success_movies_per_actors(df, path = "raw_data/cat_acteur.csv"):
     '''
     Function that count how many success movies an actor did in his timeline. Add weight in function of the times
     '''
-    acteurs_df = pd.read_csv(path)
-    acteurs_df['ratio'] = acteurs_df['income']/acteurs_df['budget']
-    acteurs_df.sort_values('year', ascending=True, inplace= True)
-    acteurs_df['connu'] = acteurs_df.apply(famour_or_not_famous, axis = 1)
+    acteurs_df = pd.read_csv(path) # load all the movies
+    acteurs_df['ratio'] = acteurs_df['income']/acteurs_df['budget'] # compute the ratio on all movies
+    acteurs_df.sort_values('year', ascending=True, inplace=True) # sort
+    acteurs_df['connu'] = acteurs_df.apply(famour_or_not_famous, axis = 1) # connu, pas connu
     acteurs_df['nbsucces'] = acteurs_df['connu']
     new_df = acteurs_df
-    new_df['nbsuccess'] = acteurs_df.groupby(by  ='acteur_name')['connu'].cumsum(axis = 0)
+    new_df['nbsuccess'] = acteurs_df.groupby(by ='acteur_name')['connu'].cumsum(axis = 0)
     new_df = new_df.sort_values('year', ascending=True)
     new_df.drop(columns='nbsucces', inplace = True)
     new_df['connu2'] = new_df['nbsuccess'].apply(lambda x : 1 if x >=1 else 0)
@@ -86,7 +84,42 @@ def Add_number_of_movies_per_writer_in_Timeline(df):
     df['Nb_actuals_movie_writers'] = df.groupby(by = "writer").cumsum()['Ones']
     return df
 
+def add_number_of_movies_actor1_in_Timeline(df, path = "raw_data/cat_acteur.csv"):
+    ''' Counts the number of movies the main actor made before (in the top 3)'''
 
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['ones'] = 1
+
+    acteurs_df['nb_movies_actor1'] = acteurs_df.groupby(
+        by='acteur_name').cumsum()['ones']
+    acteurs_df = acteurs_df.groupby(by='title').last()
+
+    acteurs_df.drop(columns='ones', inplace=True)
+    acteurs_df.reset_index(inplace=True)
+
+    new_df = acteurs_df[['title', 'nb_movies_actor1']]
+    print(len(acteurs_df))
+    print(len(df))
+    df = df.merge(right=new_df, on='title', how="left")
+    print(len(df))
+    return df
+
+def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "raw_data/cat_acteur.csv"):
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['last income'] = acteurs_df['income']
+    acteurs_df['last income'] = acteurs_df.groupby(
+        by='acteur_name')['last income'].transform(
+            lambda x: x.shift(1, fill_value=0))
+    acteurs_df = acteurs_df.groupby(by='title').agg({'last income' : 'sum'})
+    acteurs_df.reset_index(inplace=True)
+    acteurs_df = acteurs_df.rename(columns={'index': 'acteur_name'})
+    df = df.merge(right=acteurs_df, on='title', how="left")
+    print(df.shape)
+    return df
 
 
 def example():
