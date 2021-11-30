@@ -100,11 +100,51 @@ def add_number_of_movies_actor1_in_Timeline(df, path = "raw_data/cat_acteur.csv"
     acteurs_df.reset_index(inplace=True)
 
     new_df = acteurs_df[['title', 'nb_movies_actor1']]
-    print(len(acteurs_df))
-    print(len(df))
     df = df.merge(right=new_df, on='title', how="left")
-    print(len(df))
     return df
+
+
+def add_number_of_movies_actor2_in_Timeline(df,
+                                            path="raw_data/cat_acteur.csv"):
+    ''' Counts the number of movies the main actor made before (in the top 3)'''
+
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['ones'] = 1
+
+    acteurs_df['nb_movies_actor2'] = acteurs_df.groupby(
+        by='acteur_name').cumsum()['ones']
+    acteurs_df = acteurs_df.groupby(by='title').last()
+
+    acteurs_df.drop(columns='ones', inplace=True)
+    acteurs_df.reset_index(inplace=True)
+
+    new_df = acteurs_df[['title', 'nb_movies_actor1']]
+    df = df.merge(right=new_df, on='title', how="left")
+    return df
+
+
+def add_number_of_movies_actor3_in_Timeline(df,
+                                            path="raw_data/cat_acteur.csv"):
+    ''' Counts the number of movies the main actor made before (in the top 3)'''
+
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['ones'] = 1
+
+    acteurs_df['nb_movies_actor3'] = acteurs_df.groupby(
+        by='acteur_name').cumsum()['ones']
+    acteurs_df = acteurs_df.groupby(by='title').last()
+
+    acteurs_df.drop(columns='ones', inplace=True)
+    acteurs_df.reset_index(inplace=True)
+
+    new_df = acteurs_df[['title', 'nb_movies_actor1']]
+    df = df.merge(right=new_df, on='title', how="left")
+    return df
+
 
 def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "raw_data/cat_acteur.csv"):
     acteurs_df = pd.read_csv(path)  # load all the movies
@@ -118,7 +158,6 @@ def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "raw_data/ca
     acteurs_df.reset_index(inplace=True)
     acteurs_df = acteurs_df.rename(columns={'index': 'acteur_name'})
     df = df.merge(right=acteurs_df, on='title', how="left")
-    print(df.shape)
     return df
 
 
