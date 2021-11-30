@@ -116,7 +116,7 @@ upload_data_2:
 
 
 PACKAGE_NAME=CinePred
-FILENAME= new_model
+FILENAME=new_model
 
 
 run_locally:
