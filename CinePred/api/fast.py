@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import *
-# from CinePred.new_model import preproc
+from CinePred.new_model import predict
 
 import pandas as pd
 import numpy as np
@@ -11,6 +11,8 @@ import numpy as np
 
 df = import_data()
 df = preprocess_example(path='raw_data/IMDb_movies.csv')
+
+# "gs://wagon-data-722-cinepred/data/IMDb_movies.csv"
 
 app = FastAPI()
 
@@ -74,9 +76,8 @@ def search_actors(name):
 
     return actor_dict
 
-# @app.get("/predict")
-# def prediction(X):
+@app.get("/predict")
+def prediction(X):
 
-#     # X = []
 
-#     return predict(X)
+    return predict(X)
