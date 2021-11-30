@@ -39,18 +39,18 @@ class GenreOHE(BaseEstimator, TransformerMixin):
             imput of the column to fit
         '''
         # separate all categories into one list, considering comma + space as separators
-        categories = X[self.column_name].str.split(self.format_separator).tolist()
-
+        #categories = X[self.column_name].str.split(self.format_separator).tolist()
         # flatten the list
-        flat_categories = [item for sublist in categories for item in sublist]
-
+        #flat_categories = [item for sublist in categories for item in sublist]
         # convert to a set to make unique
-        set_categories = set(flat_categories)
-
+        #set_categories = set(flat_categories)
         # back to list
-        self.list_unique_categories = list(set_categories)
-        return self
-
+        self.list_unique_categories = [
+            'Action', 'Biography', 'Thriller', 'Crime', 'Drama', 'Adventure',
+            'Romance', 'Western', 'Documentary', 'Musical', 'Film-Noir',
+            'Fantasy', 'Mystery', 'Sport', 'History', 'War', 'Horror',
+            'Family', 'Music', 'Sci-Fi', 'Animation', 'Comedy'
+        ]
         return self
 
     def transform(self, X):
