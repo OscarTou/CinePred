@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import pandas as pd
 import os
 
@@ -14,7 +16,7 @@ def import_data(link = "raw_data/IMDb_movies.csv"):
         path of the CSV file
     '''
 
-    return pd.read_csv(link, low_memory=False)
+    return pd.read_csv(link, low_memory=False, encoding = "utf8" )
 
 
 if __name__ == "__main__":
