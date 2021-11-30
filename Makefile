@@ -118,11 +118,8 @@ upload_data_2:
 PACKAGE_NAME=CinePred
 FILENAME=new_model
 
-
 run_locally:
 	python -m ${PACKAGE_NAME}.${FILENAME}
-
-
 
 # ----------------------------------
 #          GCP_submit_training
