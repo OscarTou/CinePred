@@ -27,7 +27,8 @@ def preproc(df, path="raw_data/cat_acteur.csv"):
 
     df = keep_columns(df,
 
-                      column_names=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income',
+                      column_names=['imdb_title_id','actors','description',
+                          'avg_vote','country','title','worlwide_gross_income',
                           'year', 'date_published', 'genre', 'duration',
                           'budget', 'worlwide_gross_income',
                           'production_company', 'director', 'writer',
