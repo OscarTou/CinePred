@@ -24,7 +24,7 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
 
     df = keep_columns(df,
                       column_names=[
-                          'title','year', 'date_published', 'genre', 'duration',
+                          'year', 'date_published', 'genre', 'duration',
                           'budget', 'worlwide_gross_income',
                           'production_company', 'director', 'writer', 'shifted'
                       ])
@@ -106,7 +106,7 @@ def predict(df):
         Input: a preprocessed df
         Output: 2 scores MAE scores '''
 
-    mid = int(df.shape[0] / 2)
+    mid = int(len(df) / 2)
     df1 = df.iloc[:mid].copy()
     df2 = df.iloc[mid:].copy()
 
@@ -149,7 +149,6 @@ def get_fitted_model(df):
 if __name__ == '__main__':
     # Import
     df = import_data(link = 'raw_data/IMDb_movies.csv')
-
 
     # Prepare
     print("----- CLEAN DATA ------")
