@@ -1,16 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # from os import link
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from CinePred.data.importing import import_data
-from CinePred.data.preprocessing import *
-from CinePred.new_model import predict
+# from CinePred.data.preprocessing import *
+from CinePred.new_model import load_model, predict_fromX, preproc
 
 import pandas as pd
 import numpy as np
 # from deep_translator import GoogleTranslator
+df = import_data(link = 'raw_data/IMDb_movies.csv')
+# df_clean = preproc(df, path = "raw_data/cat_acteur.csv")
 
-df = import_data()
-df = preprocess_example(path='raw_data/IMDb_movies.csv')
 
 # "gs://wagon-data-722-cinepred/data/IMDb_movies.csv"
 
@@ -77,7 +79,24 @@ def search_actors(name):
     return actor_dict
 
 @app.get("/predict")
-def prediction(X):
+def prediction():
+    # model = load_model("../models/model.joblib")
+    # X = df_clean.head(1).drop(columns='worlwide_gross_income')
+    # return predict_fromX(model,X)
+    # Prepare
+    print("----- CLEAN DATA ------")
+    df_preproc = preproc(df)
+
+    print("----- LOAD MODEL ------")
+    model = load_model("model.joblib")
+
+    print("----- PREDICT MODEL ------")
+    prediction = predict_fromX(
+        model,df_preproc.head(1).drop(columns='worlwide_gross_income'))
+    return [prediction, df_preproc.head(1).drop(columns='worlwide_gross_income').iloc[0].tolist()]
 
 
-    return predict(X)
+if __name__ == "__main__":
+
+
+    print(prediction())
