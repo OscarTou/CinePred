@@ -9,11 +9,10 @@ from CinePred.data.transformers import GenreOHE
 
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from xgboost import XGBRegressor, plot_importance
-from matplotlib import pyplot
 import numpy as np
 from joblib import dump, load
 
-def preproc(df, path="raw_data/cat_acteur.csv"):
+def preproc(df, path="gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     '''
         Clean the dataframe
 
@@ -87,7 +86,7 @@ def feature_importance(df):
     model.fit(X, y)
     print(model.feature_importances_)
     plot_importance(model)
-    pyplot.show()
+
 
 
 def get_best_params(model, X, y):
@@ -169,9 +168,9 @@ def get_fitted_model(df):
 if __name__ == '__main__':
     # Import
     print("----- IMPORT DATA ------")
-    #df = import_data(link = 'raw_data/IMDb_movies.csv')
+    #df = import_data(link = 'gs://wagon-data-722-cinepred/data/IMDb_movies.csv')
     #df_preproc = preproc(df)
-    df_preproc = import_data(link='raw_data/preprocessed.csv')
+    df_preproc = import_data(link='gs://wagon-data-722-cinepred/data/preprocessed.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")

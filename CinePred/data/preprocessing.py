@@ -96,7 +96,7 @@ def convert_budget_column(df):
     '''
     if (not is_numeric_dtype(df.iloc[:,0])):
         dirname = os.path.dirname(__file__)
-        filename = os.path.join(dirname, '../../raw_data/currencies.csv')
+        filename = os.path.join(dirname, 'gs://wagon-data-722-cinepred/data/currencies.csv')
         df_currencies = import_data(filename)
         df_copy = df.copy()
         budget = df_copy.iloc[:, 0].str.split()
@@ -146,7 +146,7 @@ def one_hot_encode_multiple(data, column_name, remove_column=True):
     return data
 
 
-def preprocess_example(path='../raw_data/IMDb_movies.csv'):
+def preprocess_example(path='gs://wagon-data-722-cinepred/data/IMDb_movies.csv'):
     print('----- import Data -----')
     df = import_data(path)
 
