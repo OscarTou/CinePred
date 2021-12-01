@@ -11,7 +11,6 @@ from xgboost import XGBRegressor, plot_importance
 import numpy as np
 from joblib import dump, load
 
-
 def preproc(df, path="gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     '''
         Clean the dataframe
@@ -78,6 +77,16 @@ def preproc(df, path="gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     df.drop(columns=['index'], inplace=True)
 
     return df
+
+def feature_importance(df):
+    X = df.drop(columns=['worlwide_gross_income'])
+    y = df['worlwide_gross_income']
+    model = XGBRegressor(learning_rate=0.1, max_depth=2)
+    model.fit(X, y)
+    print(model.feature_importances_)
+    plot_importance(model)
+
+
 
 def get_best_params(model, X, y):
     # Inspect all pipe components parameters to find the one you want to gridsearch
@@ -159,9 +168,9 @@ def get_fitted_model(df):
 if __name__ == '__main__':
     # Import
     print("----- IMPORT DATA ------")
-    #df = import_data(link = 'raw_data/IMDb_movies.csv')
+    #df = import_data(link = 'gs://wagon-data-722-cinepred/data/IMDb_movies.csv')
     #df_preproc = preproc(df)
-    df_preproc = import_data(link='raw_data/preprocessed.csv')
+    df_preproc = import_data(link='gs://wagon-data-722-cinepred/data/preprocessed.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")
