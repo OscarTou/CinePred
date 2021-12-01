@@ -149,34 +149,37 @@ def load_model(file_name="model.joblib"):
     return load(filepath)
 
 def get_fitted_model(df):
-    X = df.drop(columns=[
-        'worlwide_gross_income', 'Music', "Thriller", 'date_sin', 'Action',
-        'Documentary', 'Film-Noir', 'Fantasy', 'Musical', 'Western', 'Crime'
-    ])
-    y = df['worlwide_gross_income']
+    # Select only film with most income
+    mid = int(len(df) / 2)
+    df1 = df.iloc[:mid].copy()
+    df2 = df.iloc[mid:].copy()
+
+    # Create X and y
+    X = df2.drop(columns=['worlwide_gross_income'])
+    y = df2['worlwide_gross_income']
     model = XGBRegressor(learning_rate=0.1, max_depth=2)
     model.fit(X,y)
+
+    score = cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
+    print(f'mae = {round(np.mean(np.abs(score)),2)}')
     return model
-
-def preproc_x_from_api (df):
-
-
-    pass
 
 
 if __name__ == '__main__':
     # Import
+    print("----- IMPORT DATA ------")
     #df = import_data(link = 'raw_data/IMDb_movies.csv')
+    #df_preproc = preproc(df)
+    df_preproc = import_data(link='raw_data/preprocessed.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")
-    df_preproc = import_data(link='raw_data/preprocessed.csv')
-    #df_preproc = preproc(df)
     df_preproc = df_preproc.drop(columns=['production_company', 'director', 'writer'])
     df_preproc = df_preproc.drop(columns=['imdb_title_id','actors','description','avg_vote','country','title'])
+
     # Predict
     print("----- PREDICT DATA ------")
-    print(predict(df_preproc))
+    #print(predict(df_preproc))
 
     print("----- GET FITTED MODEL ------")
     model = get_fitted_model(df_preproc)
@@ -184,7 +187,7 @@ if __name__ == '__main__':
     print("----- SAVE MODEL ------")
     save_model(model, "model.joblib")
 
-    #print("----- LOAD MODEL ------")
+    print("----- LOAD MODEL ------")
     model = load_model("model.joblib")
 
     print("----- PREDICT MODEL ------")

@@ -15,8 +15,7 @@ import json
 # from pydantic import BaseModel
 
 # from deep_translator import GoogleTranslator
-df = import_data()
-df_preproc = preproc(df)
+df_preproc = import_data(link='raw_data/preprocessed.csv')
 
 app = FastAPI()
 
@@ -123,15 +122,12 @@ def test( director='Steven Spielberg',
         duration=60,
         budget=1,
         title=''):
-    print(director, year, main_actor, second_actor, third_actor, writer, production_company, date_published, genre, duration, budget)
-
-
 
     #----   Init Dataframe ----#
     df = pd.DataFrame({'year': [year]})
     df['year'] = year
     df['duration'] = duration
-    df['budget'] = int(float(budget)) * 1_000_000
+    df['budget'] = int(float(budget)) * 1000000
     df['genre'] = genre
     df['director'] = director
     df['writer'] = writer
@@ -142,7 +138,6 @@ def test( director='Steven Spielberg',
     #----   preproc   ----#
     df['year'] = convert_to_int(df[['year']])
     df['duration'] = convert_to_int(df[['duration']])
-
     df['budget'] = log_transformation(df[['budget']])
 
     actors_1 = df_preproc[['shifted', 'actors']][df_preproc[[
@@ -156,6 +151,32 @@ def test( director='Steven Spielberg',
     ]]['actors'].str.contains(third_actor)].max()['shifted']
     shifted = actors_1 + actors_2 + actors_3
     df['shifted'] = shifted
+    print(shifted)
+
+    df['nb_movies_actor1'] = int(
+        df_preproc[df_preproc['actors'].str.contains(main_actor)][[
+            'year', 'nb_movies_actor1'
+        ]].sort_values(by='year').iloc[-5:]['nb_movies_actor1'].mean())
+    df['nb_movies_actor2'] = int(
+        df_preproc[df_preproc['actors'].str.contains(second_actor)][[
+            'year', 'nb_movies_actor1'
+        ]].sort_values(by='year').iloc[-5:]['nb_movies_actor1'].mean())
+    df['nb_movies_actor3'] = int(
+        df_preproc[df_preproc['actors'].str.contains(third_actor)][[
+            'year', 'nb_movies_actor1'
+        ]].sort_values(by='year').iloc[-5:]['nb_movies_actor1'].mean())
+
+    last_income_actor1 = df_preproc[df_preproc['actors'].str.contains(
+        main_actor)][['year', 'last income'
+                      ]].sort_values(by='year').iloc[-1]['last income']
+    last_income_actor2 = df_preproc[df_preproc['actors'].str.contains(
+        second_actor)][['year', 'last income'
+                        ]].sort_values(by='year').iloc[-1]['last income']
+    last_income_actor3 = df_preproc[df_preproc['actors'].str.contains(
+        third_actor)][['year', 'last income'
+                       ]].sort_values(by='year').iloc[-1]['last income']
+    df['last income'] = np.mean(
+        [last_income_actor1, last_income_actor2, last_income_actor3])
 
     df['date_published'] = convert_to_date(df[['date_published']])
     df['date_sin'] = add_sin_features(df[['date_published']])
@@ -166,26 +187,27 @@ def test( director='Steven Spielberg',
     ohe.fit(df)  # la colonne 'genre' est spécifié dans la classe
     df = ohe.transform(df)
 
-    df['Nb_actuals_movie_directors_company'] = df_preproc[[
-        'Nb_actuals_movie_directors_company', 'production_company'
+    df['Nb_actuals_movie_production_company'] = df_preproc[[
+        'Nb_actuals_movie_production_company', 'production_company'
     ]][df_preproc[[
-        'Nb_actuals_movie_directors_company', 'production_company'
+        'Nb_actuals_movie_production_company', 'production_company'
     ]]['production_company'].str.contains(
-        production_company)].max()['Nb_actuals_movie_directors_company']
+        production_company)].max()['Nb_actuals_movie_production_company']
     df['Nb_actuals_movie_directors'] = df_preproc[[
         'Nb_actuals_movie_directors', 'director'
     ]][df_preproc[[
         'Nb_actuals_movie_directors', 'director'
     ]]['director'].str.contains(director)].max()['Nb_actuals_movie_directors']
-    df['Nb_actuals_movie_directors_writer'] = df_preproc[[
-        'Nb_actuals_movie_directors_writer', 'writer'
-    ]][df_preproc[['Nb_actuals_movie_directors_writer',
-                   'writer']]['writer'].str.contains(
-                       writer)].max()['Nb_actuals_movie_directors_writer']
+    df['Nb_actuals_movie_writers'] = df_preproc[[
+        'Nb_actuals_movie_writers', 'writer'
+    ]][df_preproc[[
+        'Nb_actuals_movie_writers', 'writer'
+    ]]['writer'].str.contains(writer)].max()['Nb_actuals_movie_writers']
 
     df = df.drop(columns=['actors'])
 
     df = df.drop(columns=['production_company', 'director', 'writer'])
+
     #----   Prediction   ----#
     model = load_model("model.joblib")
     result = predict_fromX(model, df)
