@@ -33,7 +33,8 @@ def preproc(df, path="raw_data/cat_acteur.csv"):
                           'genre', 'duration', 'budget', 'production_company',
                           'director', 'writer', 'shifted', 'nb_movies_actor1',
                           'nb_movies_actor2', 'nb_movies_actor3',
-                          'last income'
+                          'last income', 'imdb_title_id','actors','description',
+                          'avg_vote','country','title'
                       ])
     df = remove_na_rows(df)
 
