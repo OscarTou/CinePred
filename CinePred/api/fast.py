@@ -10,7 +10,7 @@ from CinePred.new_model import load_model, predict_fromX, preproc
 import pandas as pd
 import numpy as np
 import json
-from pydantic import BaseModel
+# from pydantic import BaseModel
 
 # from deep_translator import GoogleTranslator
 df = import_data()
