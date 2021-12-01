@@ -15,8 +15,7 @@ import json
 # from pydantic import BaseModel
 
 # from deep_translator import GoogleTranslator
-df = import_data()
-df_preproc = preproc(df)
+df = import_data(link='raw_data/preprocessed.csv')
 
 app = FastAPI()
 
