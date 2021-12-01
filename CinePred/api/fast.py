@@ -89,7 +89,7 @@ def prediction():
 
     print("----- PREDICT MODEL ------")
     prediction = predict_fromX(
-        model,df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
+        model, df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
     return prediction
 
 # 'year', 'date_published', 'genre', 'duration','budget','production_company', 'director', 'writer', 'shifted'
