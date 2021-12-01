@@ -111,24 +111,26 @@ def prediction():
 # 'year', 'date_published', 'genre', 'duration','budget','production_company', 'director', 'writer', 'shifted'
 
 @app.get("/test")
-def test(director,
-         year,
-         main_actor,
-         second_actor,
-         third_actor,
-         writer,
-         production_company,
-         date_published,
-         genre,
-         duration,
-         budget,
-         title=''):
+def test( director='Steven Spielberg',
+        year=2022,
+        main_actor='Brad Pitt',
+        second_actor='Jean Dujardin',
+        third_actor='Brad Pitt',
+        writer='Woody Allen',
+        production_company='Walt Disney Pictures',
+        date_published='2021-12-12',
+        genre='Drama',
+        duration=60,
+        budget=1,
+        title=''):
+
+
 
     #----   Init Dataframe ----#
     df = pd.DataFrame({'year': [year]})
     df['year'] = year
     df['duration'] = duration
-    df['budget'] = budget * 1000000
+    df['budget'] = budget
     df['genre'] = genre
     df['director'] = director
     df['writer'] = writer
@@ -139,6 +141,8 @@ def test(director,
     #----   preproc   ----#
     df['year'] = convert_to_int(df[['year']])
     df['duration'] = convert_to_int(df[['duration']])
+    df['budget'] = convert_to_int(df[['budget']]) * 1_000_000
+
     df['budget'] = log_transformation(df[['budget']])
 
     actors_1 = df_preproc[['shifted', 'actors']][df_preproc[[
@@ -186,4 +190,4 @@ def test(director,
     model = load_model("model.joblib")
     result = predict_fromX(model, df)
 
-    return result
+    return dict(income = result)
