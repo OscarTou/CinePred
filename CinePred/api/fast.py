@@ -4,8 +4,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from CinePred.data.importing import import_data
-# from CinePred.data.preprocessing import *
+from CinePred.data.preprocessing import *
 from CinePred.new_model import load_model, predict_fromX, preproc
+from CinePred.data.featuring import *
+from CinePred.data.transformers import *
 
 import pandas as pd
 import numpy as np
@@ -36,9 +38,16 @@ def search_movie(title):
     movie_dic = {}
     for i in range(7000,8000):
         movie_dic[df_preproc['title'].iloc[0:df_preproc.shape[0]][i]] = {'Actors' : df_preproc['actors'].iloc[0:df_preproc.shape[0]][i],
-                                                        'Country' : df_preproc['country'].iloc[0:df_preproc.shape[0]][i],
-                                                        'imdb_title_id' : df_preproc['imdb_title_id'].iloc[0:df_preproc.shape[0]][i],
-                                                        'Income' : np.round((10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i])),2)}
+                                                         'Country' : df_preproc['country'].iloc[0:df_preproc.shape[0]][i],
+                                                         'Income' : np.round(10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                         'Budget' : np.round(10**(df_preproc['budget'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                        #  'Numbers of blockbuster' : df_preproc['shifted'].iloc[0:df.shape[0]][i],
+                                                         'Description' : df_preproc['description'].iloc[0:df.shape[0]][i],
+                                                         'Avg_vote' : df_preproc['avg_vote'].iloc[0:df.shape[0]][i],
+                                                        #  'Duration' : df_preproc['duration'].iloc[0:df.shape[0]][i],
+                                                         'Production company' : df_preproc['production_company'].iloc[0:df.shape[0]][i] ,
+                                                         'Director' : df_preproc['director'].iloc[0:df.shape[0]][i]
+                                                         }
 
         # en dehors du form movie_dic['title'] = movie_dic.keys
     movie_dic['Movie title'] = movie_dic
@@ -51,10 +60,16 @@ def movies():
     for i in range(7000,8000):
 
         movie_dic[df_preproc['title'].iloc[0:df_preproc.shape[0]][i]] = {'Actors' : df_preproc['actors'].iloc[0:df_preproc.shape[0]][i],
+                                                         'Year' : df_preproc['year'].iloc[0:df_preproc.shape[0]][i],
                                                          'Country' : df_preproc['country'].iloc[0:df_preproc.shape[0]][i],
-                                                         'imdb_title_id' : df_preproc['imdb_title_id'].iloc[0:df_preproc.shape[0]][i],
-                                                         'Income' : np.round(10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i]),2)
-                                                        #  'Numbers of blockbuster' : df['shifted'].iloc[0:df.shape[0]][i]
+                                                         'Income' : np.round(10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                         'Budget' : np.round(10**(df_preproc['budget'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                        #  'Numbers of blockbuster' : df_preproc['shifted'].iloc[0:df.shape[0]][i],
+                                                         'Description' : df_preproc['description'].iloc[0:df.shape[0]][i],
+                                                         'Avg_vote' : df_preproc['avg_vote'].iloc[0:df.shape[0]][i],
+                                                        #  'Duration' : df_preproc['duration'].iloc[0:df.shape[0]][i],
+                                                         'Production company' : df_preproc['production_company'].iloc[0:df.shape[0]][i] ,
+                                                         'Director' : df_preproc['director'].iloc[0:df.shape[0]][i]
                                                          }
 
         # en dehors du form movie_dic['title'] = movie_dic.keys
