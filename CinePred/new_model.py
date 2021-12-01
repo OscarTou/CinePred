@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from sklearn.pipeline import _name_estimators
 from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import *
 from CinePred.data.featuring import *
@@ -9,11 +8,11 @@ from CinePred.data.transformers import GenreOHE
 
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from xgboost import XGBRegressor, plot_importance
-from matplotlib import pyplot
 import numpy as np
 from joblib import dump, load
 
-def preproc(df, path="raw_data/cat_acteur.csv"):
+
+def preproc(df, path="gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     '''
         Clean the dataframe
 
@@ -80,16 +79,6 @@ def preproc(df, path="raw_data/cat_acteur.csv"):
 
     return df
 
-def feature_importance(df):
-    X = df.drop(columns=['worlwide_gross_income'])
-    y = df['worlwide_gross_income']
-    model = XGBRegressor(learning_rate=0.1, max_depth=2)
-    model.fit(X, y)
-    print(model.feature_importances_)
-    plot_importance(model)
-    pyplot.show()
-
-
 def get_best_params(model, X, y):
     # Inspect all pipe components parameters to find the one you want to gridsearch
     # Instanciate grid search
@@ -145,8 +134,9 @@ def save_model(fitted_model, file_name="model.joblib"):
     dump(fitted_model, filepath)
 
 def load_model(file_name="model.joblib"):
-    dirname = os.path.dirname(__file__)
-    filepath = os.path.join(dirname, 'models/'+file_name)
+    #dirname = os.path.dirname(__file__)
+    #filepath = os.path.join(dirname, 'models/'+file_name)
+    filepath = 'gs://wagon-data-722-cinepred/model' + file_name
     return load(filepath)
 
 def get_fitted_model(df):
