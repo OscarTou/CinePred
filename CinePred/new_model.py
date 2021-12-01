@@ -9,7 +9,6 @@ from CinePred.data.transformers import GenreOHE
 
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from xgboost import XGBRegressor, plot_importance
-from matplotlib import pyplot
 import numpy as np
 from joblib import dump, load
 
