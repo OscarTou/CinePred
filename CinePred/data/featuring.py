@@ -115,12 +115,12 @@ def add_number_of_movies_actor2_in_Timeline(df,
 
     acteurs_df['nb_movies_actor2'] = acteurs_df.groupby(
         by='acteur_name').cumsum()['ones']
-    acteurs_df = acteurs_df.groupby(by='title').last()
+    acteurs_df = acteurs_df.groupby(by='title').nth(-2)
 
     acteurs_df.drop(columns='ones', inplace=True)
     acteurs_df.reset_index(inplace=True)
 
-    new_df = acteurs_df[['title', 'nb_movies_actor1']]
+    new_df = acteurs_df[['title', 'nb_movies_actor2']]
     df = df.merge(right=new_df, on='title', how="left")
     return df
 
@@ -136,12 +136,12 @@ def add_number_of_movies_actor3_in_Timeline(df,
 
     acteurs_df['nb_movies_actor3'] = acteurs_df.groupby(
         by='acteur_name').cumsum()['ones']
-    acteurs_df = acteurs_df.groupby(by='title').last()
+    acteurs_df = acteurs_df.groupby(by='title').nth(-3)
 
     acteurs_df.drop(columns='ones', inplace=True)
     acteurs_df.reset_index(inplace=True)
 
-    new_df = acteurs_df[['title', 'nb_movies_actor1']]
+    new_df = acteurs_df[['title', 'nb_movies_actor3']]
     df = df.merge(right=new_df, on='title', how="left")
     return df
 
@@ -154,7 +154,7 @@ def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "raw_data/ca
     acteurs_df['last income'] = acteurs_df.groupby(
         by='acteur_name')['last income'].transform(
             lambda x: x.shift(1, fill_value=0))
-    acteurs_df = acteurs_df.groupby(by='title').agg({'last income' : 'sum'})
+    acteurs_df = acteurs_df.groupby(by='title').agg({'last income' : 'mean'})
     acteurs_df.reset_index(inplace=True)
     acteurs_df = acteurs_df.rename(columns={'index': 'acteur_name'})
     df = df.merge(right=acteurs_df, on='title', how="left")

@@ -22,25 +22,18 @@ def preproc(df, path="raw_data/cat_acteur.csv"):
     '''
     # NA & columns:
     df = add_success_movies_per_actors(df, path=path)
-
     df = add_number_of_movies_actor1_in_Timeline(df, path=path)
+    df = add_number_of_movies_actor2_in_Timeline(df, path=path)
+    df = add_number_of_movies_actor3_in_Timeline(df, path=path)
     df = add_total_income_of_last_movie_of_actors_in_Timeline(df, path=path)
 
     df = keep_columns(df,
                       column_names=[
-                          'worlwide_gross_income',
-                          'year',
-                          'date_published',
-                          'genre',
-                          'duration',
-                          'budget',
-                          'production_company',
-                          'director',
-                          'writer',
-                          'shifted',
-                          'nb_movies_actor1',
-                          'last income',
-                          'reviews_from_critics'
+                          'worlwide_gross_income', 'year', 'date_published',
+                          'genre', 'duration', 'budget', 'production_company',
+                          'director', 'writer', 'shifted', 'nb_movies_actor1',
+                          'nb_movies_actor2', 'nb_movies_actor3',
+                          'last income'
                       ])
     df = remove_na_rows(df)
 
