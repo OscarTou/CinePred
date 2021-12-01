@@ -24,9 +24,10 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
 
     df = keep_columns(df,
 
-                      column_names=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income',
+                      column_names=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income','production_company',
+                                    'director',
                           'year', 'date_published', 'genre', 'duration',
-                          'budget','production_company', 'director', 'writer', 'shifted'
+                          'budget',  'writer', 'shifted'
                       ])
     df = remove_na_rows(df)
 
@@ -68,7 +69,7 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
     # sort & index:
     df.sort_values('budget', inplace=True)
     df.reset_index(inplace=True)
-    df.drop(columns=['index', 'production_company', 'director', 'writer'],
+    df.drop(columns=['index', 'writer'],
             inplace=True)
 
     return df
