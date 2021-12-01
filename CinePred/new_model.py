@@ -69,12 +69,7 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
     # sort & index:
     df.sort_values('budget', inplace=True)
     df.reset_index(inplace=True)
-<<<<<<< HEAD
-    df.drop(columns=['index', 'writer'],
-            inplace=True)
-=======
     df = df.drop(columns=['index'])
->>>>>>> 4a29b9781dfaddddeba4ad1e3be3c16b538915aa
 
     return df
 
