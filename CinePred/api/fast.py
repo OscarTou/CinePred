@@ -95,7 +95,7 @@ def prediction():
 # 'year', 'date_published', 'genre', 'duration','budget','production_company', 'director', 'writer', 'shifted'
 
 @app.get("/test")
-def test(title,director,year,main_actor,second_actor,third_actor,writer,production_company,date_published,genre,duration,budget):
+def test(director,year,main_actor,second_actor,third_actor,writer,production_company,date_published,genre,duration,budget):
 
     actors_1 = df_preproc[['shifted','actors']][df_preproc[['shifted','actors']]['actors'].str.contains(main_actor)].max()['shifted']
     actors_2 = df_preproc[['shifted','actors']][df_preproc[['shifted','actors']]['actors'].str.contains(second_actor)].max()['shifted']
