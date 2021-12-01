@@ -150,3 +150,13 @@ gcp_submit_training:
 		--runtime-version=${RUNTIME_VERSION} \
 		--region ${REGION} \
 		--stream-logs
+
+# DOCKER
+
+build_docker :
+	docker build --tag=eu.gcr.io/${PROJECT_ID}/cinepred .
+
+docker_push :
+	docker push eu.gcr.io/${PROJECT_ID}/cinepred
+
+# create service à partir de l'image et hop, url -> url de request
