@@ -91,14 +91,18 @@ create_bucket:
 # replace with your local path to the `train_1k.csv` and make sure to put the path between quotes
 LOCAL_PATH="/home/oscartouze/code/OscarTou/CinePred/raw_data/IMDb_movies.csv"
 LOCAL_PATH_2="/home/oscartouze/code/OscarTou/CinePred/raw_data/cat_acteur.csv"
+MODEL_PATH ="/home/oscartouze/code/OscarTou/CinePred/CinePred/models/model.joblib"
 
 
 # bucket directory in which to store the uploaded file (`data` is an arbitrary name that we choose to use)
 BUCKET_FOLDER=data
+BUCKET_DATA_FOLDER=model
+
 
 # name for the uploaded file inside of the bucket (we choose not to rename the file that we upload)
 BUCKET_FILE_NAME=$(shell basename ${LOCAL_PATH})
 BUCKET_FILE_NAME_2=$(shell basename ${LOCAL_PATH_2})
+BUCKET_FILE_NAME_MODEL=$(shell basename ${MODEL_PATH})
 upload_data:
     # @gsutil cp train_1k.csv gs://wagon-ml-my-bucket-name/data/train_1k.csv
 	gsutil cp ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
@@ -107,6 +111,8 @@ upload_data_2:
     # @gsutil cp train_1k.csv gs://wagon-ml-my-bucket-name/data/train_1k.csv
 	gsutil cp ${LOCAL_PATH_2} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME_2}
 
+upload_model:
+	gsutil cp ${LOCAL_PATH_2} gs://${BUCKET_NAME}/${BUCKET_DATA_FOLDER}/${BUCKET_FILE_NAME_MODEL}
 
 
 
