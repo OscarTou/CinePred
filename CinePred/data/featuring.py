@@ -1,5 +1,3 @@
-from os import path
-from numpy.lib.shape_base import column_stack
 import pandas as pd
 import numpy as np
 
@@ -30,82 +28,6 @@ def add_cos_features(df):
     result = np.cos(2 * np.pi * months / 12)
     return pd.DataFrame(result)
 
-
-def add_sin_cos_features(df):
-    '''
-    seasonality: add sin & cos column for each month
-    '''
-    df_copy = df.copy()
-    months = df_copy.iloc[:, 0].apply(lambda x: x.month)
-    result = pd.DataFrame({
-        'sin': np.sin(2 * np.pi * months / 12),
-        'cos': np.cos(2 * np.pi * months / 12)
-    })
-    return result
-
-def add_director_category(df):
-    '''
-    Categorize director in 3 categories ranging from 1 to 3
-    '''
-    df_copy = df.copy()
-    prod = pd.cut(df_copy.iloc[:, 0].value_counts(),
-                  bins=[0, 2, 10, 50],
-                  include_lowest=True,
-                  labels=[1, 2, 3])
-    return pd.DataFrame(df_copy.iloc[:, 0].apply(lambda x: prod[str(x)]))
-
-
-def add_prod_company_category(df):
-    '''
-    Categorize production company in 5 categories ranging from 1 to 5
-    '''
-    df_copy = df.copy()
-    prod = pd.cut(df_copy.iloc[:, 0].value_counts(),
-                  bins=[0, 1, 5, 20, 50, 500],
-                  include_lowest=True,
-                  labels=[1, 2, 3, 4, 5])
-    return pd.DataFrame(df_copy.iloc[:, 0].apply(lambda x: prod[str(x)]))
-
-
-def add_writer_category(df):
-    '''
-    Categorize writer in 5 categories ranging from 1 to 3
-    '''
-    df_copy = df.copy()
-    prod = pd.cut(df_copy.iloc[:, 0].value_counts(),
-                  bins=[0, 1, 5, 40],
-                  include_lowest=True,
-                  labels=[1, 2, 3])
-    return pd.DataFrame(df_copy.iloc[:, 0].apply(lambda x: prod[str(x)]))
-
-
-def prod_count_times(df):
-    df_copy = df.copy()
-    count_times = df_copy.iloc[:, 0].value_counts()
-    result = df_copy.iloc[:, 0].apply(lambda x: count_times[str(x)])
-    return pd.DataFrame(result)
-
-def writer_count_times(df):
-    df_copy = df.copy()
-    count_times = df_copy.iloc[:, 0].value_counts()
-    result = df_copy.iloc[:, 0].apply(lambda x: count_times[str(x)])
-    return pd.DataFrame(result)
-
-def director_count_times(df):
-    df_copy = df.copy()
-    count_times = df_copy.iloc[:, 0].value_counts()
-    result = df_copy.iloc[:, 0].apply(lambda x: count_times[str(x)])
-    return pd.DataFrame(result)
-
-
-def add_cum_budget_per_production_company(df):
-    df_copy = df.copy()
-    cum_bpc = df_copy.groupby(by=df_copy.iloc[:, 0]).sum().reset_index()
-    result = df_copy.iloc[:, 0].apply(
-        lambda x: cum_bpc[cum_bpc.iloc[:, 0] == x].iloc[0, 1])
-    return pd.DataFrame(result)
-
-
 def add_inflation(df, column):
     df["year_2"] = df["year"].apply(lambda x: 2018 if x > 2018 else x)
     df[column] = df.apply(lambda x: cpi.inflate(x[column], x["year_2"]),
@@ -113,20 +35,6 @@ def add_inflation(df, column):
     df.drop(columns='year_2', inplace=True)
     return df
 
-def one_hot_encode(df, column_names):
-    '''
-    for cell with multiple categories, one hot encode a list of column, for each categories
-    for cell with multiple categories, one hot encode for each column, each categories
-
-    Parameters
-    ----------
-    columns_name : array str
-        name list of the columns to encode
-    '''
-
-    for column_name in column_names:
-        df = one_hot_encode_multiple(df, column_name)
-    return df
 
 def famour_or_not_famous(df):
     if (df['budget'] >= 100_000_000) & (df['ratio'] >= 3):
@@ -137,13 +45,13 @@ def add_success_movies_per_actors(df, path = "raw_data/cat_acteur.csv"):
     '''
     Function that count how many success movies an actor did in his timeline. Add weight in function of the times
     '''
-    acteurs_df = pd.read_csv(path)
-    acteurs_df['ratio'] = acteurs_df['income']/acteurs_df['budget']
-    acteurs_df.sort_values('year', ascending=True, inplace= True)
-    acteurs_df['connu'] = acteurs_df.apply(famour_or_not_famous, axis = 1)
+    acteurs_df = pd.read_csv(path) # load all the movies
+    acteurs_df['ratio'] = acteurs_df['income']/acteurs_df['budget'] # compute the ratio on all movies
+    acteurs_df.sort_values('year', ascending=True, inplace=True) # sort
+    acteurs_df['connu'] = acteurs_df.apply(famour_or_not_famous, axis = 1) # connu, pas connu
     acteurs_df['nbsucces'] = acteurs_df['connu']
     new_df = acteurs_df
-    new_df['nbsuccess'] = acteurs_df.groupby(by  ='acteur_name')['connu'].cumsum(axis = 0)
+    new_df['nbsuccess'] = acteurs_df.groupby(by ='acteur_name')['connu'].cumsum(axis = 0)
     new_df = new_df.sort_values('year', ascending=True)
     new_df.drop(columns='nbsucces', inplace = True)
     new_df['connu2'] = new_df['nbsuccess'].apply(lambda x : 1 if x >=1 else 0)
@@ -165,20 +73,92 @@ def Remove_Ones(df):
     return df
 
 def Add_number_of_movies_per_prod_company_in_Timeline(df):
-    df['Nb_actuals_movie_directors_company'] = df.groupby(by = "production_company").cumsum()['Ones']
+    df['Nb_actuals_movie_production_company'] = df.groupby(by = "production_company").cumsum()['Ones']
     return df
-
 
 def Add_number_of_movies_per_directors_in_Timeline(df):
     df['Nb_actuals_movie_directors'] = df.groupby(by = "director").cumsum()['Ones']
     return df
 
-
 def Add_number_of_movies_per_writer_in_Timeline(df):
-    df['Nb_actuals_movie_directors_writer'] = df.groupby(by = "writer").cumsum()['Ones']
+    df['Nb_actuals_movie_writers'] = df.groupby(by = "writer").cumsum()['Ones']
+    return df
+
+def add_number_of_movies_actor1_in_Timeline(df, path = "raw_data/cat_acteur.csv"):
+    ''' Counts the number of movies the main actor made before (in the top 3)'''
+
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['ones'] = 1
+
+    acteurs_df['nb_movies_actor1'] = acteurs_df.groupby(
+        by='acteur_name').cumsum()['ones']
+    acteurs_df = acteurs_df.groupby(by='title').last()
+
+    acteurs_df.drop(columns='ones', inplace=True)
+    acteurs_df.reset_index(inplace=True)
+
+    new_df = acteurs_df[['title', 'nb_movies_actor1']]
+    df = df.merge(right=new_df, on='title', how="left")
     return df
 
 
+def add_number_of_movies_actor2_in_Timeline(df,
+                                            path="raw_data/cat_acteur.csv"):
+    ''' Counts the number of movies the main actor made before (in the top 3)'''
+
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['ones'] = 1
+
+    acteurs_df['nb_movies_actor2'] = acteurs_df.groupby(
+        by='acteur_name').cumsum()['ones']
+    acteurs_df = acteurs_df.groupby(by='title').nth(-2)
+
+    acteurs_df.drop(columns='ones', inplace=True)
+    acteurs_df.reset_index(inplace=True)
+
+    new_df = acteurs_df[['title', 'nb_movies_actor2']]
+    df = df.merge(right=new_df, on='title', how="left")
+    return df
+
+
+def add_number_of_movies_actor3_in_Timeline(df,
+                                            path="raw_data/cat_acteur.csv"):
+    ''' Counts the number of movies the main actor made before (in the top 3)'''
+
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['ones'] = 1
+
+    acteurs_df['nb_movies_actor3'] = acteurs_df.groupby(
+        by='acteur_name').cumsum()['ones']
+    acteurs_df = acteurs_df.groupby(by='title').nth(-3)
+
+    acteurs_df.drop(columns='ones', inplace=True)
+    acteurs_df.reset_index(inplace=True)
+
+    new_df = acteurs_df[['title', 'nb_movies_actor3']]
+    df = df.merge(right=new_df, on='title', how="left")
+    return df
+
+
+def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "raw_data/cat_acteur.csv"):
+    acteurs_df = pd.read_csv(path)  # load all the movies
+    acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
+    acteurs_df.sort_values(by='year', inplace=True)
+    acteurs_df['last income'] = acteurs_df['income']
+    acteurs_df['last income'] = acteurs_df.groupby(
+        by='acteur_name')['last income'].transform(
+            lambda x: x.shift(1, fill_value=0))
+    acteurs_df = acteurs_df.groupby(by='title').agg({'last income' : 'mean'})
+    acteurs_df.reset_index(inplace=True)
+    acteurs_df = acteurs_df.rename(columns={'index': 'acteur_name'})
+    df = df.merge(right=acteurs_df, on='title', how="left")
+    return df
 
 
 def example():
