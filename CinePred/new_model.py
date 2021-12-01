@@ -2,17 +2,18 @@
 # -*- coding: utf-8 -*-
 
 from sklearn.pipeline import _name_estimators
-from CinePred.data.importing import *
+from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import *
 from CinePred.data.featuring import *
 from CinePred.data.transformers import GenreOHE
 
 from sklearn.model_selection import cross_val_score, GridSearchCV
-from xgboost import XGBRegressor
+from xgboost import XGBRegressor, plot_importance
+from matplotlib import pyplot
 import numpy as np
 from joblib import dump, load
 
-def preproc(df, path = "raw_data/cat_acteur.csv"):
+def preproc(df, path="raw_data/cat_acteur.csv"):
     '''
         Clean the dataframe
 
@@ -20,17 +21,20 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
         Output: dataframe cleaned and sorted by budget
     '''
     # NA & columns:
-    df = add_success_movies_per_actors(df, path = path)
+    df = add_success_movies_per_actors(df, path=path)
+    df = add_number_of_movies_actor1_in_Timeline(df, path=path)
+    df = add_number_of_movies_actor2_in_Timeline(df, path=path)
+    df = add_number_of_movies_actor3_in_Timeline(df, path=path)
+    df = add_total_income_of_last_movie_of_actors_in_Timeline(df, path=path)
 
     df = keep_columns(df,
-                      column_names=['imdb_title_id','actors','description',
-                                    'avg_vote','country','title',
-                                    'worlwide_gross_income',
-                                    'production_company',
-                                    'director',
-                                    'year', 'date_published', 'genre',
-                                    'duration',
-                                    'budget',  'writer', 'shifted'
+                      column_names=[
+                          'worlwide_gross_income', 'year', 'date_published',
+                          'genre', 'duration', 'budget', 'production_company',
+                          'director', 'writer', 'shifted', 'nb_movies_actor1',
+                          'nb_movies_actor2', 'nb_movies_actor3',
+                          'last income', 'imdb_title_id','actors',
+                          'description','avg_vote','country','title'
                       ])
     df = remove_na_rows(df)
 
@@ -53,13 +57,13 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
 
     # budget
     df['budget'] = convert_budget_column(df[['budget']])
-    df = df[df['budget'] < 100]
+    df = df[df['budget'] > 100]
     df = add_inflation(df, 'budget')
     df['budget'] = log_transformation(df[['budget']])
 
     # income
     df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
-    #df = add_inflation(df, 'worlwide_gross_income')
+    df = add_inflation(df, 'worlwide_gross_income')
     df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
 
     # Cumsum
@@ -72,10 +76,18 @@ def preproc(df, path = "raw_data/cat_acteur.csv"):
     # sort & index:
     df.sort_values('budget', inplace=True)
     df.reset_index(inplace=True)
-
-    df = df.drop(columns=['index'])
+    df.drop(columns=['index'], inplace=True)
 
     return df
+
+def feature_importance(df):
+    X = df.drop(columns=['worlwide_gross_income'])
+    y = df['worlwide_gross_income']
+    model = XGBRegressor(learning_rate=0.1, max_depth=2)
+    model.fit(X, y)
+    print(model.feature_importances_)
+    plot_importance(model)
+    pyplot.show()
 
 
 def get_best_params(model, X, y):
@@ -96,14 +108,12 @@ def get_best_params(model, X, y):
     grid_search.fit(X, y)
     return grid_search.best_params_
 
-
 def get_mae(df):
     X = df.drop(columns=['worlwide_gross_income'])
     y = df['worlwide_gross_income']
     model = XGBRegressor(learning_rate=0.1, max_depth=2)
-    params = get_best_params(model, X, y)
-    print(params)
-    #return cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
+
+    return cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
 
 def predict(df):
     '''
@@ -116,16 +126,14 @@ def predict(df):
 
     score1 = np.mean(np.abs(get_mae(df1))) # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 200}
     score2 = np.mean(np.abs(get_mae(df2))) # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
-    return [round(score1, 2), round(score2, 2)]
+    return [round(score1, 3), round(score2, 3)]
 
 def predict2(df):
     ''' Get the mae on the full dataset (crossvalidated) '''
 
-    score1 = np.abs(get_mae(
-        df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
-    print(score1)
-    return(np.mean(np.round(score1, 2)))
-
+    score = np.abs(get_mae(df))  # {'learning_rate': 0.1, 'max_depth': 2, 'n_estimators': 300}
+    score = round(np.mean(score),2)
+    return(score)
 
 def predict_fromX(model, df):
     prediction = model.predict(df)
@@ -142,31 +150,37 @@ def load_model(file_name="model.joblib"):
     return load(filepath)
 
 def get_fitted_model(df):
-    X = df.drop(columns=['worlwide_gross_income'])
-    y = df['worlwide_gross_income']
+    # Select only film with most income
+    mid = int(len(df) / 2)
+    df1 = df.iloc[:mid].copy()
+    df2 = df.iloc[mid:].copy()
+
+    # Create X and y
+    X = df2.drop(columns=['worlwide_gross_income'])
+    y = df2['worlwide_gross_income']
     model = XGBRegressor(learning_rate=0.1, max_depth=2)
     model.fit(X,y)
+
+    score = cross_val_score(model, X, y, cv=5, scoring='neg_mean_absolute_error')
+    print(f'mae = {round(np.mean(np.abs(score)),2)}')
     return model
-
-def preproc_x_from_api (df):
-
-
-    pass
 
 
 if __name__ == '__main__':
     # Import
-    df = import_data(link = 'raw_data/IMDb_movies.csv')
+    print("----- IMPORT DATA ------")
+    #df = import_data(link = 'raw_data/IMDb_movies.csv')
+    #df_preproc = preproc(df)
+    df_preproc = import_data(link='raw_data/preprocessed.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")
-    df_preproc = preproc(df)
     df_preproc = df_preproc.drop(columns=['production_company', 'director', 'writer'])
     df_preproc = df_preproc.drop(columns=['imdb_title_id','actors','description','avg_vote','country','title'])
+
     # Predict
     print("----- PREDICT DATA ------")
     #print(predict(df_preproc))
-    #print(predict2(df_preproc))
 
     print("----- GET FITTED MODEL ------")
     model = get_fitted_model(df_preproc)
