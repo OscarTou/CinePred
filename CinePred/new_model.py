@@ -167,11 +167,12 @@ def preproc_x_from_api (df):
 
 if __name__ == '__main__':
     # Import
-    df = import_data(link = 'raw_data/IMDb_movies.csv')
+    #df = import_data(link = 'raw_data/IMDb_movies.csv')
 
     # Prepare
     print("----- CLEAN DATA ------")
-    df_preproc = preproc(df)
+    df_preproc = import_data(link='raw_data/preprocessed.csv')
+    #df_preproc = preproc(df)
     df_preproc = df_preproc.drop(columns=['production_company', 'director', 'writer'])
     df_preproc = df_preproc.drop(columns=['imdb_title_id','actors','description','avg_vote','country','title'])
     # Predict
@@ -185,7 +186,7 @@ if __name__ == '__main__':
     save_model(model, "model.joblib")
 
     #print("----- LOAD MODEL ------")
-    #model = load_model("model.joblib")
+    model = load_model("model.joblib")
 
     print("----- PREDICT MODEL ------")
     prediction = predict_fromX(
