@@ -4,8 +4,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from CinePred.data.importing import import_data
-# from CinePred.data.preprocessing import *
+from CinePred.data.preprocessing import *
 from CinePred.new_model import load_model, predict_fromX, preproc
+from CinePred.data.featuring import *
+from CinePred.data.transformers import *
 
 import pandas as pd
 import numpy as np
@@ -36,9 +38,16 @@ def search_movie(title):
     movie_dic = {}
     for i in range(7000,8000):
         movie_dic[df_preproc['title'].iloc[0:df_preproc.shape[0]][i]] = {'Actors' : df_preproc['actors'].iloc[0:df_preproc.shape[0]][i],
-                                                        'Country' : df_preproc['country'].iloc[0:df_preproc.shape[0]][i],
-                                                        'imdb_title_id' : df_preproc['imdb_title_id'].iloc[0:df_preproc.shape[0]][i],
-                                                        'Income' : np.round((10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i])),2)}
+                                                         'Country' : df_preproc['country'].iloc[0:df_preproc.shape[0]][i],
+                                                         'Income' : np.round(10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                         'Budget' : np.round(10**(df_preproc['budget'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                        #  'Numbers of blockbuster' : df_preproc['shifted'].iloc[0:df.shape[0]][i],
+                                                         'Description' : df_preproc['description'].iloc[0:df.shape[0]][i],
+                                                         'Avg_vote' : df_preproc['avg_vote'].iloc[0:df.shape[0]][i],
+                                                        #  'Duration' : df_preproc['duration'].iloc[0:df.shape[0]][i],
+                                                         'Production company' : df_preproc['production_company'].iloc[0:df.shape[0]][i] ,
+                                                         'Director' : df_preproc['director'].iloc[0:df.shape[0]][i]
+                                                         }
 
         # en dehors du form movie_dic['title'] = movie_dic.keys
     movie_dic['Movie title'] = movie_dic
@@ -51,10 +60,16 @@ def movies():
     for i in range(7000,8000):
 
         movie_dic[df_preproc['title'].iloc[0:df_preproc.shape[0]][i]] = {'Actors' : df_preproc['actors'].iloc[0:df_preproc.shape[0]][i],
+                                                         'Year' : df_preproc['year'].iloc[0:df_preproc.shape[0]][i],
                                                          'Country' : df_preproc['country'].iloc[0:df_preproc.shape[0]][i],
-                                                         'imdb_title_id' : df_preproc['imdb_title_id'].iloc[0:df_preproc.shape[0]][i],
-                                                         'Income' : np.round(10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i]),2)
-                                                        #  'Numbers of blockbuster' : df['shifted'].iloc[0:df.shape[0]][i]
+                                                         'Income' : np.round(10**(df_preproc['worlwide_gross_income'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                         'Budget' : np.round(10**(df_preproc['budget'].iloc[0:df_preproc.shape[0]][i]),2),
+                                                        #  'Numbers of blockbuster' : df_preproc['shifted'].iloc[0:df.shape[0]][i],
+                                                         'Description' : df_preproc['description'].iloc[0:df.shape[0]][i],
+                                                         'Avg_vote' : df_preproc['avg_vote'].iloc[0:df.shape[0]][i],
+                                                        #  'Duration' : df_preproc['duration'].iloc[0:df.shape[0]][i],
+                                                         'Production company' : df_preproc['production_company'].iloc[0:df.shape[0]][i] ,
+                                                         'Director' : df_preproc['director'].iloc[0:df.shape[0]][i]
                                                          }
 
         # en dehors du form movie_dic['title'] = movie_dic.keys
@@ -81,6 +96,7 @@ def prediction():
     # X = df_clean.head(1).drop(columns='worlwide_gross_income')
     # return predict_fromX(model,X)
     # Prepare
+    #
     print("----- CLEAN DATA ------")
 
 
@@ -95,18 +111,83 @@ def prediction():
 # 'year', 'date_published', 'genre', 'duration','budget','production_company', 'director', 'writer', 'shifted'
 
 @app.get("/test")
-def test(title,director,year,main_actor,second_actor,third_actor,writer,production_company,date_published,genre,duration,budget):
+def test( director='Steven Spielberg',
+        year=2022,
+        main_actor='Brad Pitt',
+        second_actor='Jean Dujardin',
+        third_actor='Brad Pitt',
+        writer='Woody Allen',
+        production_company='Walt Disney Pictures',
+        date_published='2021-12-12',
+        genre='Drama',
+        duration=60,
+        budget=1,
+        title=''):
 
-    actors_1 = df_preproc[['shifted','actors']][df_preproc[['shifted','actors']]['actors'].str.contains(main_actor)].max()['shifted']
-    actors_2 = df_preproc[['shifted','actors']][df_preproc[['shifted','actors']]['actors'].str.contains(second_actor)].max()['shifted']
-    actors_3 = df_preproc[['shifted','actors']][df_preproc[['shifted','actors']]['actors'].str.contains(third_actor)].max()['shifted']
 
+
+    #----   Init Dataframe ----#
+    df = pd.DataFrame({'year': [year]})
+    df['year'] = year
+    df['duration'] = duration
+    df['budget'] = budget
+    df['genre'] = genre
+    df['director'] = director
+    df['writer'] = writer
+    df['production_company'] = production_company
+    df['actors'] = f'{main_actor}, {second_actor}, {third_actor}'
+    df['date_published'] = date_published
+
+    #----   preproc   ----#
+    df['year'] = convert_to_int(df[['year']])
+    df['duration'] = convert_to_int(df[['duration']])
+    df['budget'] = convert_to_int(df[['budget']]) * 1_000_000
+
+    df['budget'] = log_transformation(df[['budget']])
+
+    actors_1 = df_preproc[['shifted', 'actors']][df_preproc[[
+        'shifted', 'actors'
+    ]]['actors'].str.contains(main_actor)].max()['shifted']
+    actors_2 = df_preproc[['shifted', 'actors']][df_preproc[[
+        'shifted', 'actors'
+    ]]['actors'].str.contains(second_actor)].max()['shifted']
+    actors_3 = df_preproc[['shifted', 'actors']][df_preproc[[
+        'shifted', 'actors'
+    ]]['actors'].str.contains(third_actor)].max()['shifted']
     shifted = actors_1 + actors_2 + actors_3
+    df['shifted'] = shifted
 
-    X = pd.DataFrame(np.array([[year, date_published, genre,duration,budget,production_company,director,writer,shifted]]),columns=['year', 'date_published', 'genre', 'duration','budget','production_company', 'director', 'writer', 'shifted'])
-    X_prepro = preproc(X)
+    df['date_published'] = convert_to_date(df[['date_published']])
+    df['date_sin'] = add_sin_features(df[['date_published']])
+    df['date_cos'] = add_cos_features(df[['date_published']])
+    df.drop(columns='date_published', inplace=True)
+
+    ohe = GenreOHE()
+    ohe.fit(df)  # la colonne 'genre' est spécifié dans la classe
+    df = ohe.transform(df)
+
+    df['Nb_actuals_movie_directors_company'] = df_preproc[[
+        'Nb_actuals_movie_directors_company', 'production_company'
+    ]][df_preproc[[
+        'Nb_actuals_movie_directors_company', 'production_company'
+    ]]['production_company'].str.contains(
+        production_company)].max()['Nb_actuals_movie_directors_company']
+    df['Nb_actuals_movie_directors'] = df_preproc[[
+        'Nb_actuals_movie_directors', 'director'
+    ]][df_preproc[[
+        'Nb_actuals_movie_directors', 'director'
+    ]]['director'].str.contains(director)].max()['Nb_actuals_movie_directors']
+    df['Nb_actuals_movie_directors_writer'] = df_preproc[[
+        'Nb_actuals_movie_directors_writer', 'writer'
+    ]][df_preproc[['Nb_actuals_movie_directors_writer',
+                   'writer']]['writer'].str.contains(
+                       writer)].max()['Nb_actuals_movie_directors_writer']
+
+    df = df.drop(columns=['actors'])
+
+    df = df.drop(columns=['production_company', 'director', 'writer'])
+    #----   Prediction   ----#
     model = load_model("model.joblib")
-    #
-    prediction = predict_fromX(model,X_prepro)
+    result = predict_fromX(model, df)
 
-    return prediction
+    return dict(income = result)

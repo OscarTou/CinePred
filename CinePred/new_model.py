@@ -159,6 +159,10 @@ def get_fitted_model(df):
     model.fit(X,y)
     return model
 
+def preproc_x_from_api (df):
+
+
+    pass
 
 
 if __name__ == '__main__':
@@ -167,26 +171,26 @@ if __name__ == '__main__':
 
     # Prepare
     print("----- CLEAN DATA ------")
-    df_preproc = preproc(df, path="raw_data/cat_acteur.csv")
-
+    df_preproc = preproc(df)
+    df_preproc = df_preproc.drop(columns=['production_company', 'director', 'writer'])
+    df_preproc = df_preproc.drop(columns=['imdb_title_id','actors','description','avg_vote','country','title'])
     # Predict
     print("----- PREDICT DATA ------")
     print(predict(df_preproc))
 
     print("----- GET FITTED MODEL ------")
-    # model = get_fitted_model(df_preproc)
+    model = get_fitted_model(df_preproc)
 
     print("----- SAVE MODEL ------")
-    # save_model(model, "model.joblib")
+    save_model(model, "model.joblib")
 
     #print("----- LOAD MODEL ------")
     #model = load_model("model.joblib")
 
     print("----- PREDICT MODEL ------")
-    #prediction = predict_fromX(
-    #    model,df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
-    #print(prediction)
-    #print(df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
+    prediction = predict_fromX(
+        model,df_preproc.head(1).drop(columns=['worlwide_gross_income']))
+    print(prediction)
     #print(predict(df))
     #print(predict2(df))
     #get_mae(df)
