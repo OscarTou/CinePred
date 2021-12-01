@@ -123,6 +123,7 @@ def test( director='Steven Spielberg',
         duration=60,
         budget=1,
         title=''):
+    print(director, year, main_actor, second_actor, third_actor, writer, production_company, date_published, genre, duration, budget)
 
 
 
@@ -130,7 +131,7 @@ def test( director='Steven Spielberg',
     df = pd.DataFrame({'year': [year]})
     df['year'] = year
     df['duration'] = duration
-    df['budget'] = budget
+    df['budget'] = int(float(budget)) * 1_000_000
     df['genre'] = genre
     df['director'] = director
     df['writer'] = writer
@@ -141,7 +142,6 @@ def test( director='Steven Spielberg',
     #----   preproc   ----#
     df['year'] = convert_to_int(df[['year']])
     df['duration'] = convert_to_int(df[['duration']])
-    df['budget'] = convert_to_int(df[['budget']]) * 1_000_000
 
     df['budget'] = log_transformation(df[['budget']])
 
