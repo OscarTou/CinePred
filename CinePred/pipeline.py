@@ -14,7 +14,7 @@ from sklearn.linear_model import LinearRegression
 from xgboost import XGBRegressor
 
 
-def import_clean_df(path = "raw_data/IMDb_movies.csv"):
+def import_clean_df(path = "gs://wagon-data-722-cinepred/data/IMDb_movies.csv"):
     # IMPORT DF
     df = import_data(path)
 

@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # Init DataFrame
     print("---- Init Data ----")
-    df = import_data(path = 'raw_data/IMDb_movies.csv')
+    df = import_data(path = 'gs://wagon-data-722-cinepred/data/IMDb_movies.csv')
     df = keep_columns(df,column_names=[
         'budget',
         'duration',

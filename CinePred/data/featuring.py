@@ -41,7 +41,7 @@ def famour_or_not_famous(df):
         return 1
     return 0
 
-def add_success_movies_per_actors(df, path = "raw_data/cat_acteur.csv"):
+def add_success_movies_per_actors(df, path = "gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     '''
     Function that count how many success movies an actor did in his timeline. Add weight in function of the times
     '''
@@ -84,7 +84,7 @@ def Add_number_of_movies_per_writer_in_Timeline(df):
     df['Nb_actuals_movie_writers'] = df.groupby(by = "writer").cumsum()['Ones']
     return df
 
-def add_number_of_movies_actor1_in_Timeline(df, path = "raw_data/cat_acteur.csv"):
+def add_number_of_movies_actor1_in_Timeline(df, path = "gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     ''' Counts the number of movies the main actor made before (in the top 3)'''
 
     acteurs_df = pd.read_csv(path)  # load all the movies
@@ -105,7 +105,7 @@ def add_number_of_movies_actor1_in_Timeline(df, path = "raw_data/cat_acteur.csv"
 
 
 def add_number_of_movies_actor2_in_Timeline(df,
-                                            path="raw_data/cat_acteur.csv"):
+                                            path="gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     ''' Counts the number of movies the main actor made before (in the top 3)'''
 
     acteurs_df = pd.read_csv(path)  # load all the movies
@@ -126,7 +126,7 @@ def add_number_of_movies_actor2_in_Timeline(df,
 
 
 def add_number_of_movies_actor3_in_Timeline(df,
-                                            path="raw_data/cat_acteur.csv"):
+                                            path="gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     ''' Counts the number of movies the main actor made before (in the top 3)'''
 
     acteurs_df = pd.read_csv(path)  # load all the movies
@@ -146,7 +146,7 @@ def add_number_of_movies_actor3_in_Timeline(df,
     return df
 
 
-def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "raw_data/cat_acteur.csv"):
+def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
     acteurs_df = pd.read_csv(path)  # load all the movies
     acteurs_df['year'] = convert_to_int(acteurs_df[['year']])
     acteurs_df.sort_values(by='year', inplace=True)
@@ -164,7 +164,7 @@ def add_total_income_of_last_movie_of_actors_in_Timeline(df, path = "raw_data/ca
 def example():
 
     print('----- import Data -----')
-    df = import_data(path = 'raw_data/IMDb_movies.csv')
+    df = import_data(path = 'gs://wagon-data-722-cinepred/data/IMDb_movies.csv')
 
     print('----- keep columns -----')
     df = keep_columns(df,
@@ -275,7 +275,7 @@ def feature_example(df):
 
 if __name__ == "__main__":
     print("\n----  PREPROCESSING -----\n")
-    df = preprocess_example(path='raw_data/IMDb_movies.csv')
+    df = preprocess_example(path='gs://wagon-data-722-cinepred/data/IMDb_movies.csv')
 
     print("\n----  FEATURING -----\n")
     df = feature_example(df)
