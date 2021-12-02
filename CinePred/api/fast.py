@@ -90,20 +90,9 @@ def search_actors(name):
 
 @app.get("/predict")
 def prediction():
-    # model = load_model("../models/model.joblib")
-    # X = df_clean.head(1).drop(columns='worlwide_gross_income')
-    # return predict_fromX(model,X)
-    # Prepare
-    #
-    print("----- CLEAN DATA ------")
-
-
-    print("----- LOAD MODEL ------")
-    model = load_model("model.joblib")
-
-    print("----- PREDICT MODEL ------")
-    prediction = predict_fromX(
-        model, df_preproc.head(1).drop(columns=['imdb_title_id','actors','description','avg_vote','country','title','worlwide_gross_income']))
+    df_demo = pd.read_csv('gs://wagon-data-722-cinepred/data/prepro_demoday.csv').drop(columns="Unnamed: 0")
+    model = load_model(file_name="gs://wagon-data-722-cinepred/model/model.joblib")
+    prediction = predict_fromX(model, df_demo)
     return prediction
 
 # 'year', 'date_published', 'genre', 'duration','budget','production_company', 'director', 'writer', 'shifted'
