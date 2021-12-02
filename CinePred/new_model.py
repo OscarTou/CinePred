@@ -5,6 +5,7 @@ from CinePred.data.importing import import_data
 from CinePred.data.preprocessing import *
 from CinePred.data.featuring import *
 from CinePred.data.transformers import GenreOHE
+from google.cloud import storage
 
 from sklearn.model_selection import cross_val_score, GridSearchCV
 from xgboost import XGBRegressor, plot_importance
@@ -145,8 +146,20 @@ def save_model(fitted_model, file_name="model.joblib"):
 def load_model(file_name="model.joblib"):
     #dirname = os.path.dirname(__file__)
     #filepath = os.path.join(dirname, 'models/'+file_name)
-    filepath = 'gs://wagon-data-722-cinepred/model' + file_name
-    return load(filepath)
+
+    # filepath = 'gs://wagon-data-722-cinepred/model/' + file_name
+
+    BUCKET_NAME = "wagon-data-722-cinepred"
+    storage_filename = 'model/model.joblib'
+    local_filename = "model.joblib"
+
+    client = storage.Client()
+    bucket = client.bucket(BUCKET_NAME)
+    blob = bucket.blob(storage_filename)
+    blob.download_to_filename(local_filename)
+
+    return load(local_filename)
+
 
 def get_fitted_model(df):
     # Select only film with most income
