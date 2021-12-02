@@ -94,8 +94,9 @@ LOCAL_PATH_2="/home/oscartouze/code/OscarTou/CinePred/raw_data/cat_acteur.csv"
 MODEL_PATH ="/home/oscartouze/code/OscarTou/CinePred/CinePred/models/model.joblib"
 LOCAL_PATH_PREPRO = "/home/oscartouze/code/OscarTou/CinePred/raw_data/preprocessed.csv"
 LOCAL_PATH_CURRENCIES="/home/oscartouze/code/OscarTou/CinePred/raw_data/currencies.csv"
-
+LOCAL_PATH_IMAGES = "/home/oscartouze/code/OscarTou/CinePred/raw_data/images"
 # bucket directory in which to store the uploaded file (`data` is an arbitrary name that we choose to use)
+
 BUCKET_FOLDER=data
 BUCKET_DATA_FOLDER=model
 
@@ -106,6 +107,8 @@ BUCKET_FILE_NAME_2=$(shell basename ${LOCAL_PATH_2})
 BUCKET_FILE_NAME_PREPRO=$(shell basename ${LOCAL_PATH_PREPRO})
 BUCKET_FILE_NAME_MODEL=$(shell basename ${MODEL_PATH})
 BUCKET_FILE_NAME_CURRENCIES=$(shell basename ${LOCAL_PATH_CURRENCIES})
+BUCKET_FILE_NAME_IMAGES=$(shell basename ${LOCAL_PATH_IMAGES})
+
 
 
 
@@ -127,6 +130,8 @@ upload_preprocessed:
 upload_currencies:
 	gsutil cp ${LOCAL_PATH_CURRENCIES} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME_CURRENCIES}
 
+upload_images:
+	gsutil cp -r ${LOCAL_PATH_IMAGES} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME_IMAGES}
 
 # ----------------------------------
 #         	Run locally
@@ -172,6 +177,10 @@ docker_push :
 
 # create service à partir de l'image et hop, url -> url de request
 
+run_docker_locally :
+	docker run -e PORT=8000 -p 8000:8000 eu.gcr.io/${PROJECT_ID}/cinepred
+
+
 GCR_MULTI_REGION=eu.gcr.io
 GCP_PROJECT_ID=imposing-water-328017
 DOCKER_IMAGE_NAME=cinepred
@@ -200,3 +209,4 @@ push_image:
 
 deploy_image:
 		gcloud run deploy --image ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME} --platform managed --region ${GCR_REGION}
+

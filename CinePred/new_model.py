@@ -88,6 +88,58 @@ def feature_importance(df):
     plot_importance(model)
 
 
+def preproc_demoday(df, path = "gs://wagon-data-722-cinepred/data/cat_acteur.csv"):
+    # df = add_success_movies_per_actors(df, path=path)
+    # df = add_number_of_movies_actor1_in_Timeline(df, path=path)
+    # df = add_number_of_movies_actor2_in_Timeline(df, path=path)
+    # df = add_number_of_movies_actor3_in_Timeline(df, path=path)
+    # df = add_total_income_of_last_movie_of_actors_in_Timeline(df, path=path)
+
+    # df = remove_na_rows(df)
+
+
+    # df['date_published'] = convert_to_date(df[['date_published']])
+
+    # # day of the year
+    # df['date_sin'] = add_sin_features(df[['date_published']])
+    # df['date_cos'] = add_cos_features(df[['date_published']])
+    # df.drop(columns='date_published', inplace=True)
+
+    # year, duration
+    # df['year'] = convert_to_int(df[['year']])
+    # df['duration'] = convert_to_int(df[['duration']])
+
+    # genre
+    # ohe = GenreOHE()
+    # ohe.fit(df) # la colonne 'genre' est spécifié dans la classe
+    # df = ohe.transform(df)
+
+    # budget
+    # df['budget'] = convert_budget_column(df[['budget']])
+    # df = df[df['budget'] > 100]
+    # df = add_inflation(df, 'budget')
+    df['budget'] = log_transformation(df[['budget']])
+
+    # # income
+    # df['worlwide_gross_income'] = convert_income(df[['worlwide_gross_income']])
+    # df = add_inflation(df, 'worlwide_gross_income')
+    # df['worlwide_gross_income'] = log_transformation(df[['worlwide_gross_income']])
+
+    # Cumsum
+    # df = Add_Ones(df)
+    # df = Add_number_of_movies_per_prod_company_in_Timeline(df)
+    # df = Add_number_of_movies_per_directors_in_Timeline(df)
+    # df = Add_number_of_movies_per_writer_in_Timeline(df)
+    # df = Remove_Ones(df)
+
+    # sort & index:
+    # df.sort_values('budget', inplace=True)
+    # df.reset_index(inplace=True)
+    # df.drop(columns=['index'], inplace=True)
+
+    return df
+
+
 
 def get_best_params(model, X, y):
     # Inspect all pipe components parameters to find the one you want to gridsearch
