@@ -64,7 +64,7 @@ streamlit:
 #          Fast api
 # ----------------------------------
 run_api:
-	uvicorn CinePred.api.fast:app --reload
+	uvicorn CinePred.api.fast:app --reload --port 7676
 
 
 # ----------------------------------
@@ -72,13 +72,13 @@ run_api:
 # ----------------------------------
 
 # project id - replace with your GCP project id
-PROJECT_ID='imposing-water-328017'
+PROJECT_ID=imposing-water-328017
 
 # bucket name - replace with your GCP bucket name
-BUCKET_NAME= "wagon-data-722-cinepred"
+BUCKET_NAME=wagon-data-722-cinepred
 
 # choose your region from https://cloud.google.com/storage/docs/locations#available_locations
-REGION='europe-west1'
+REGION=europe-west1
 
 set_project:
 	gcloud config set project ${PROJECT_ID}
@@ -144,7 +144,6 @@ run_locally:
 # ----------------------------------
 
 REGION=europe-west1
-
 PYTHON_VERSION=3.7
 FRAMEWORK=scikit-learn
 RUNTIME_VERSION=1.15
@@ -172,3 +171,32 @@ docker_push :
 	docker push eu.gcr.io/${PROJECT_ID}/cinepred
 
 # create service à partir de l'image et hop, url -> url de request
+
+GCR_MULTI_REGION=eu.gcr.io
+GCP_PROJECT_ID=imposing-water-328017
+DOCKER_IMAGE_NAME=cinepred
+GCR_REGION=europe-west1
+
+run_deploy:
+	gcloud run deploy \
+		--image ${GCR_MULTI_REGION}/${PROJECT_ID}/${DOCKER_IMAGE_NAME} \
+		--platform managed \
+		--region ${GCR_REGION}
+
+
+build_m1_prod:
+		docker buildx build --platform linux/amd64 -t ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME} --load .
+
+# for the other machines
+build_image:
+		docker build -t ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME} .
+
+run_image:
+		docker run -e PORT=8000 -p 8080:8000 ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME}
+
+# prod for everybody
+push_image:
+		docker push ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME}
+
+deploy_image:
+		gcloud run deploy --image ${GCR_MULTI_REGION}/${GCP_PROJECT_ID}/${DOCKER_IMAGE_NAME} --platform managed --region ${GCR_REGION}
